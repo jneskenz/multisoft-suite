@@ -1,12 +1,16 @@
 {
     "name": "HR",
     "alias": "hr",
-    "description": "RRHH: empleados, contratos, asistencias, planillas, vacaciones",
+    "display_name": {"es": "RRHH", "en": "HR"},
+    "description": {"es": "Recursos humanos", "en": "Human Resources"},
+    "icon": "ti tabler-users",
+    "color": "success",
+    "version": "1.0.0",
+    "order": 3,
+    "enabled": true,
+    "requires_context": false,
     "keywords": ["hr", "employees", "payroll", "attendance"],
-    "priority": 2,
-    "providers": [
-        "Modules\\HR\\Providers\\HRServiceProvider"
-    ],
-    "files": [],
-    "requires": ["Core"]
+    "providers": ["Modules\\HR\\Providers\\HRServiceProvider"],
+    "dependencies": ["core"],
+    "files": []
 }

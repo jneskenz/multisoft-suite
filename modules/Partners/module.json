@@ -1,12 +1,16 @@
 {
     "name": "Partners",
     "alias": "partners",
-    "description": "Gestión de terceros (clientes/proveedores/contactos), direcciones, categorización",
+    "display_name": {"es": "Terceros", "en": "Partners"},
+    "description": {"es": "Clientes y proveedores", "en": "Customers & Suppliers"},
+    "icon": "ti tabler-address-book",
+    "color": "dark",
+    "version": "1.0.0",
+    "order": 6,
+    "enabled": true,
+    "requires_context": false,
     "keywords": ["partners", "customers", "suppliers", "contacts"],
-    "priority": 1,
-    "providers": [
-        "Modules\\Partners\\Providers\\PartnersServiceProvider"
-    ],
-    "files": [],
-    "requires": ["Core"]
+    "providers": ["Modules\\Partners\\Providers\\PartnersServiceProvider"],
+    "dependencies": ["core"],
+    "files": []
 }

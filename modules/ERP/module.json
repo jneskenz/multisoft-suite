@@ -1,12 +1,16 @@
 {
     "name": "ERP",
     "alias": "erp",
-    "description": "Procesos ERP: Contexto (Empresa+Local), inventarios, compras, ventas",
+    "display_name": {"es": "ERP", "en": "ERP"},
+    "description": {"es": "Planificación de recursos", "en": "Resource Planning"},
+    "icon": "ti tabler-building",
+    "color": "primary",
+    "version": "1.0.0",
+    "order": 2,
+    "enabled": true,
+    "requires_context": true,
     "keywords": ["erp", "inventory", "sales", "purchases"],
-    "priority": 2,
-    "providers": [
-        "Modules\\ERP\\Providers\\ERPServiceProvider"
-    ],
-    "files": [],
-    "requires": ["Core", "Partners"]
+    "providers": ["Modules\\ERP\\Providers\\ERPServiceProvider"],
+    "dependencies": ["core", "partners"],
+    "files": []
 }

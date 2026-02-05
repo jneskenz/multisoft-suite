@@ -1,12 +1,16 @@
 {
     "name": "FMS",
     "alias": "fms",
-    "description": "Sistema de Gestión Financiera: plan de cuentas, asientos contables, estados financieros",
+    "display_name": {"es": "Finanzas", "en": "Finance"},
+    "description": {"es": "Sistema financiero", "en": "Financial System"},
+    "icon": "ti tabler-calculator",
+    "color": "warning",
+    "version": "1.0.0",
+    "order": 5,
+    "enabled": true,
+    "requires_context": true,
     "keywords": ["fms", "accounting", "finance", "ledger"],
-    "priority": 3,
-    "providers": [
-        "Modules\\FMS\\Providers\\FMSServiceProvider"
-    ],
-    "files": [],
-    "requires": ["Core", "ERP"]
+    "providers": ["Modules\\FMS\\Providers\\FMSServiceProvider"],
+    "dependencies": ["core", "erp"],
+    "files": []
 }

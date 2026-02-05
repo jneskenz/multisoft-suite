@@ -1,12 +1,16 @@
 {
     "name": "Reports",
     "alias": "reports",
-    "description": "Motor de reportes: generación dinámica, exportación PDF/Excel",
-    "keywords": ["reports", "pdf", "excel", "export"],
-    "priority": 4,
-    "providers": [
-        "Modules\\Reports\\Providers\\ReportsServiceProvider"
-    ],
-    "files": [],
-    "requires": ["Core"]
+    "display_name": {"es": "Reportes", "en": "Reports"},
+    "description": {"es": "Centro de reportes", "en": "Report Center"},
+    "icon": "ti tabler-file-analytics",
+    "color": "danger",
+    "version": "1.0.0",
+    "order": 7,
+    "enabled": true,
+    "requires_context": false,
+    "keywords": ["reports", "analytics", "export", "pdf"],
+    "providers": ["Modules\\Reports\\Providers\\ReportsServiceProvider"],
+    "dependencies": ["core"],
+    "files": []
 }

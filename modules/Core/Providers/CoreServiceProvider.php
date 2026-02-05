@@ -2,7 +2,14 @@
 
 namespace Modules\Core\Providers;
 
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Http\Kernel;
+use Modules\Core\Services\ModuleService;
+use Modules\Core\Http\Middleware\DetectActiveModule;
+use Modules\Core\Http\ViewComposers\ModulesComposer;
+use Modules\Core\Console\Commands\ClearModuleCacheCommand;
+use Modules\Core\Console\Commands\ListModulesCommand;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -22,6 +29,14 @@ class CoreServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(RouteServiceProvider::class);
+        
+        // Registrar ModuleService como singleton
+        $this->app->singleton(ModuleService::class, function ($app) {
+            return new ModuleService();
+        });
+        
+        // Alias corto para el servicio
+        $this->app->alias(ModuleService::class, 'modules');
     }
 
     /**
@@ -32,7 +47,48 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerTranslations();
+        $this->registerMiddleware();
+        $this->registerViewComposers();
+        $this->registerCommands();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+    }
+    
+    /**
+     * Registrar comandos Artisan.
+     */
+    protected function registerCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ClearModuleCacheCommand::class,
+                ListModulesCommand::class,
+            ]);
+        }
+    }
+    
+    /**
+     * Registrar middleware del módulo.
+     */
+    protected function registerMiddleware(): void
+    {
+        // Registrar el middleware en el grupo 'web'
+        $router = $this->app['router'];
+        $router->aliasMiddleware('detect.module', DetectActiveModule::class);
+        
+        // Añadir al grupo web automáticamente
+        $router->pushMiddlewareToGroup('web', DetectActiveModule::class);
+    }
+    
+    /**
+     * Registrar view composers.
+     */
+    protected function registerViewComposers(): void
+    {
+        // Compartir módulos accesibles con vistas específicas
+        View::composer(
+            ['components.apps-switcher', 'layouts.app', 'layouts.partials.*'],
+            ModulesComposer::class
+        );
     }
 
     /**
