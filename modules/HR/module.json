@@ -1,0 +1,12 @@
+{
+    "name": "HR",
+    "alias": "hr",
+    "description": "RRHH: empleados, contratos, asistencias, planillas, vacaciones",
+    "keywords": ["hr", "employees", "payroll", "attendance"],
+    "priority": 2,
+    "providers": [
+        "Modules\\HR\\Providers\\HRServiceProvider"
+    ],
+    "files": [],
+    "requires": ["Core"]
+}

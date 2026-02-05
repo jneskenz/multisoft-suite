@@ -1,0 +1,12 @@
+{
+    "name": "Reports",
+    "alias": "reports",
+    "description": "Motor de reportes: generación dinámica, exportación PDF/Excel",
+    "keywords": ["reports", "pdf", "excel", "export"],
+    "priority": 4,
+    "providers": [
+        "Modules\\Reports\\Providers\\ReportsServiceProvider"
+    ],
+    "files": [],
+    "requires": ["Core"]
+}

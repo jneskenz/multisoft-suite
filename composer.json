@@ -1,15 +1,20 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/blank-livewire-starter-kit",
+    "name": "acme/multisoft-suite",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "Suite Empresarial Completa: ERP + CRM + RRHH + FMS + Módulos Extensibles",
     "keywords": [
         "laravel",
-        "framework"
+        "framework",
+        "erp",
+        "crm",
+        "hr",
+        "fms"
     ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "laravel/fortify": "*",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^4.0"
@@ -29,8 +34,19 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
-        }
+            "Database\\Seeders\\": "database/seeders/",
+            "Modules\\Core\\": "modules/Core/",
+            "Modules\\Partners\\": "modules/Partners/",
+            "Modules\\ERP\\": "modules/ERP/",
+            "Modules\\FMS\\": "modules/FMS/",
+            "Modules\\HR\\": "modules/HR/",
+            "Modules\\CRM\\": "modules/CRM/",
+            "Modules\\Reports\\": "modules/Reports/"
+        },
+        "files": [
+            "app/Helpers/LanguageHelpers.php",
+            "app/Helpers/ModuleHelpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -88,7 +104,16 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [],
+            "providers": [
+                "Modules\\Core\\Providers\\CoreServiceProvider",
+                "Modules\\Partners\\Providers\\PartnersServiceProvider",
+                "Modules\\ERP\\Providers\\ERPServiceProvider",
+                "Modules\\FMS\\Providers\\FMSServiceProvider",
+                "Modules\\HR\\Providers\\HRServiceProvider",
+                "Modules\\CRM\\Providers\\CRMServiceProvider",
+                "Modules\\Reports\\Providers\\ReportsServiceProvider"
+            ]
         }
     },
     "config": {

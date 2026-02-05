@@ -1,0 +1,19 @@
+{
+    "name": "modules/core",
+    "description": "Módulo Core: Auth, RBAC, settings, auditoría, adjuntos, notificaciones",
+    "type": "laravel-module",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\Core\\": ""
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Core\\Providers\\CoreServiceProvider"
+            ]
+        }
+    }
+}

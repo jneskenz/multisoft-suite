@@ -1,0 +1,12 @@
+{
+    "name": "CRM",
+    "alias": "crm",
+    "description": "CRM: leads, oportunidades, actividades, pipeline de ventas",
+    "keywords": ["crm", "leads", "opportunities", "sales"],
+    "priority": 2,
+    "providers": [
+        "Modules\\CRM\\Providers\\CRMServiceProvider"
+    ],
+    "files": [],
+    "requires": ["Core", "Partners"]
+}

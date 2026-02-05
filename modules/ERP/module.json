@@ -1,0 +1,12 @@
+{
+    "name": "ERP",
+    "alias": "erp",
+    "description": "Procesos ERP: Contexto (Empresa+Local), inventarios, compras, ventas",
+    "keywords": ["erp", "inventory", "sales", "purchases"],
+    "priority": 2,
+    "providers": [
+        "Modules\\ERP\\Providers\\ERPServiceProvider"
+    ],
+    "files": [],
+    "requires": ["Core", "Partners"]
+}

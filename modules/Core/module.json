@@ -1,0 +1,12 @@
+{
+    "name": "Core",
+    "alias": "core",
+    "description": "Módulo Core: Auth, RBAC, settings, auditoría, adjuntos, notificaciones",
+    "keywords": ["core", "auth", "rbac", "permissions"],
+    "priority": 0,
+    "providers": [
+        "Modules\\Core\\Providers\\CoreServiceProvider"
+    ],
+    "files": [],
+    "requires": []
+}

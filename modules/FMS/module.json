@@ -1,0 +1,12 @@
+{
+    "name": "FMS",
+    "alias": "fms",
+    "description": "Sistema de Gestión Financiera: plan de cuentas, asientos contables, estados financieros",
+    "keywords": ["fms", "accounting", "finance", "ledger"],
+    "priority": 3,
+    "providers": [
+        "Modules\\FMS\\Providers\\FMSServiceProvider"
+    ],
+    "files": [],
+    "requires": ["Core", "ERP"]
+}
