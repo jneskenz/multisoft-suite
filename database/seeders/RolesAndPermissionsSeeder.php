@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
+use Modules\Core\Models\Permission;
+use Modules\Core\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -13,6 +14,9 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Crear permisos
         $this->createPermissions();
 
@@ -121,29 +125,32 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         // Super Admin - Tiene todos los permisos (manejado por Gate::before)
         $superAdmin = Role::updateOrCreate(
-            ['name' => 'super-admin'],
+            ['name' => 'superadmin', 'guard_name' => 'web'],
             [
                 'display_name' => 'Super Administrador',
                 'description' => 'Acceso total al sistema',
+                'is_system' => true,
             ]
         );
 
         // Admin - Tiene acceso a todos los módulos
         $admin = Role::updateOrCreate(
-            ['name' => 'admin'],
+            ['name' => 'admin', 'guard_name' => 'web'],
             [
                 'display_name' => 'Administrador',
                 'description' => 'Administrador del sistema',
+                'is_system' => true,
             ]
         );
         $admin->syncPermissions(Permission::pluck('name')->toArray());
 
         // Manager - Acceso a módulos operativos
         $manager = Role::updateOrCreate(
-            ['name' => 'manager'],
+            ['name' => 'manager', 'guard_name' => 'web'],
             [
                 'display_name' => 'Gerente',
                 'description' => 'Gerente con acceso a múltiples módulos',
+                'is_system' => false,
             ]
         );
         $manager->syncPermissions([
@@ -156,10 +163,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Contador - Acceso a FMS y reportes
         $accountant = Role::updateOrCreate(
-            ['name' => 'accountant'],
+            ['name' => 'accountant', 'guard_name' => 'web'],
             [
                 'display_name' => 'Contador',
                 'description' => 'Contador con acceso a módulo financiero',
+                'is_system' => false,
             ]
         );
         $accountant->syncPermissions([
@@ -171,10 +179,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Vendedor - Acceso a CRM y ventas ERP
         $salesperson = Role::updateOrCreate(
-            ['name' => 'salesperson'],
+            ['name' => 'salesperson', 'guard_name' => 'web'],
             [
                 'display_name' => 'Vendedor',
                 'description' => 'Vendedor con acceso a CRM y ventas',
+                'is_system' => false,
             ]
         );
         $salesperson->syncPermissions([
@@ -186,10 +195,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // RRHH - Acceso a módulo de recursos humanos
         $hrManager = Role::updateOrCreate(
-            ['name' => 'hr-manager'],
+            ['name' => 'hr-manager', 'guard_name' => 'web'],
             [
                 'display_name' => 'Gestor RRHH',
                 'description' => 'Gestor de recursos humanos',
+                'is_system' => false,
             ]
         );
         $hrManager->syncPermissions([
@@ -201,10 +211,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Usuario básico - Solo lectura
         $user = Role::updateOrCreate(
-            ['name' => 'user'],
+            ['name' => 'user', 'guard_name' => 'web'],
             [
                 'display_name' => 'Usuario',
                 'description' => 'Usuario con acceso limitado',
+                'is_system' => true,
             ]
         );
         $user->syncPermissions([

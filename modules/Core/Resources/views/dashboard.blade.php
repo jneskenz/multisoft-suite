@@ -2,6 +2,35 @@
 
 @section('title', __('Dashboard'))
 
+@php
+    $group = current_group_code() ?? request()->route('group') ?? 'PE';
+    $breadcrumbs = [
+        'title' => '',
+        'description' => '',
+        'icon' => 'ti tabler-smart-home',
+        'items' => [
+            ['name' => 'Core', 'url' => url(app()->getLocale() . '/' . $group . '/core')], 
+            ['name' => 'Dashboard', 'url' => '#']
+        ],
+    ];
+@endphp
+
+@section('breadcrumb')
+    {{-- @include('components.breadcrumbs', $breadcrumbs) --}}
+    <x-breadcrumbs :items="$breadcrumbs">
+        <x-slot:extra>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-label-primary me-2">
+                    <i class="ti tabler-list"></i>
+                </span>
+                <span class="text-muted"></span>
+            </div>
+        </x-slot:extra>
+        <x-slot:acciones>
+        </x-slot:acciones>
+    </x-breadcrumbs>
+@endsection
+
 @section('content')
 <div class="space-y-6">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">

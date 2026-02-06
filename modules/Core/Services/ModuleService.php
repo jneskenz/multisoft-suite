@@ -82,6 +82,12 @@ class ModuleService
 
     /**
      * Detectar módulo activo basado en la URL
+     *
+     * Estructura de URL: /{locale}/{group}/{module}/...
+     * Ejemplos:
+     *   /es/PE/core/users  → módulo: core
+     *   /es/PE/erp         → módulo: erp
+     *   /es/PE/welcome     → módulo: null (welcome no es módulo)
      */
     public function detectActive($request = null): ?array
     {
@@ -93,17 +99,24 @@ class ModuleService
         
         $segments = explode('/', trim($path, '/'));
         
-        // Ignorar el locale (primer segmento)
-        $moduleSegment = $segments[1] ?? null;
+        // Estructura: /{locale}/{group}/{module}/...
+        // Índices:       0        1       2
+        // El módulo está en el segmento 2 (índice 2)
+        $moduleSegment = $segments[2] ?? null;
         
+        // Si no hay segmento de módulo, no hay módulo activo
         if (!$moduleSegment) {
-            return $this->find('core');
+            return null;
+        }
+
+        // Excluir rutas especiales que no son módulos
+        $nonModuleRoutes = ['welcome', 'dashboard', 'select-group', 'profile'];
+        if (in_array($moduleSegment, $nonModuleRoutes)) {
+            return null;
         }
 
         // Buscar módulo que coincida con el segmento
-        $module = $this->find($moduleSegment);
-        
-        return $module ?? $this->find('core');
+        return $this->find($moduleSegment);
     }
 
     /**

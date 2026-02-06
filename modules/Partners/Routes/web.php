@@ -2,8 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('{locale}')->where(['locale' => 'es|en'])->middleware(['web', 'setlocale', 'auth'])->group(function () {
-    Route::prefix('partners')->name('partners.')->middleware(['can:access.partners'])->group(function () {
-        Route::get('/', fn() => view('partners::index'))->name('index');
-    });
-});
+/*
+|--------------------------------------------------------------------------
+| Web Routes - Partners Module
+|--------------------------------------------------------------------------
+| Las rutas de Partners están centralizadas en routes/web.php principal 
+| usando la estructura /{locale}/{group}/partners/...
+*/
+
+// Todas las rutas de Partners están en routes/web.php

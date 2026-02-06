@@ -1,7 +1,7 @@
 {
     "name": "FMS",
     "alias": "fms",
-    "display_name": {"es": "Finanzas", "en": "Finance"},
+    "display_name": {"es": "FMS", "en": "FMS"},
     "description": {"es": "Sistema financiero", "en": "Financial System"},
     "icon": "ti tabler-calculator",
     "color": "warning",

@@ -35,6 +35,13 @@ return [
                     'route' => 'core.roles.index',
                     'permission' => 'core.roles.view',
                 ],
+                [
+                    'key' => 'permissions',
+                    'title' => ['es' => 'Permisos', 'en' => 'Permissions'],
+                    'icon' => 'ti tabler-lock',
+                    'route' => 'core.permissions.index',
+                    'permission' => 'core.permissions.view',
+                ],
             ],
         ],
         [

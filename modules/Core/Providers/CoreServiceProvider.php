@@ -5,11 +5,15 @@ namespace Modules\Core\Providers;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Http\Kernel;
+use Livewire\Livewire;
 use Modules\Core\Services\ModuleService;
 use Modules\Core\Http\Middleware\DetectActiveModule;
 use Modules\Core\Http\ViewComposers\ModulesComposer;
 use Modules\Core\Console\Commands\ClearModuleCacheCommand;
 use Modules\Core\Console\Commands\ListModulesCommand;
+use Modules\Core\Livewire\UserManager;
+use Modules\Core\Livewire\RoleManager;
+use Modules\Core\Livewire\PermissionManager;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -50,7 +54,19 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerMiddleware();
         $this->registerViewComposers();
         $this->registerCommands();
+        $this->registerLivewireComponents();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+    }
+    
+    /**
+     * Registrar componentes Livewire del módulo.
+     */
+    protected function registerLivewireComponents(): void
+    {
+        // Registrar con nombre simple (sin ::)
+        Livewire::component('core-user-manager', UserManager::class);
+        Livewire::component('core-role-manager', RoleManager::class);
+        Livewire::component('core-permission-manager', PermissionManager::class);
     }
     
     /**

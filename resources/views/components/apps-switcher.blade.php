@@ -3,14 +3,18 @@
     $modules = $accessibleModules ?? [];
     $currentModule = $activeModule ?? null;
     $locale = app()->getLocale();
+    $group = current_group_code() ?? request()->route('group') ?? 'PE';
     
-    // Obtener info del módulo activo para el botón
-    $activeModuleName = $currentModule['alias'] ?? 'core';
-    $activeIcon = $currentModule['icon'] ?? 'ti tabler-apps';
-    $activeColor = $currentModule['color'] ?? 'primary';
-    $activeDisplayName = is_array($currentModule['display_name'] ?? null) 
-        ? ($currentModule['display_name'][$locale] ?? $currentModule['display_name']['en'] ?? 'Módulos')
-        : ($currentModule['display_name'] ?? 'Módulos');
+    // Obtener info del módulo activo para el botón (null si no hay módulo activo)
+    $hasActiveModule = $currentModule !== null;
+    $activeModuleName = $currentModule['alias'] ?? null;
+    $activeIcon = $hasActiveModule ? ($currentModule['icon'] ?? 'ti tabler-apps') : 'ti tabler-apps';
+    $activeColor = $hasActiveModule ? ($currentModule['color'] ?? 'primary') : 'primary';
+    $activeDisplayName = $hasActiveModule 
+        ? (is_array($currentModule['display_name'] ?? null) 
+            ? ($currentModule['display_name'][$locale] ?? $currentModule['display_name']['en'] ?? 'Módulos')
+            : ($currentModule['display_name'] ?? 'Módulos'))
+        : 'Módulos';
 @endphp
 
 <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown">
@@ -22,10 +26,10 @@
         <i class="icon-base {{ $activeIcon }} icon-22px text-heading me-0 me-md-1"></i>
         <span class="d-none d-md-inline">{{ $activeDisplayName }}</span>
     </a>
-    <div class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="nav-apps-text">
+    <div class="dropdown-menu dropdown-menu-start p-0" aria-labelledby="nav-apps-text">
         <div class="dropdown-menu-header border-bottom">
             <div class="dropdown-header d-flex align-items-center">
-                <h6 class="mb-0 me-auto">Multisoft Suite</h6>
+                <h6 class="mb-0 me-auto"> {{ $group}} · Multisoft Suite</h6>
                 <span class="badge bg-label-primary">{{ count($modules) }} módulos</span>
             </div>
         </div>
@@ -49,13 +53,8 @@
                         $color = $module['color'] ?? 'secondary';
                         $requiresContext = $module['requires_context'] ?? false;
 
-                        // Generar URL del módulo
-                        $routeName = "{$moduleName}.index";
-                        if (\Route::has($routeName)) {
-                            $moduleUrl = route($routeName, ['locale' => $locale]);
-                        } else {
-                            $moduleUrl = url("/{$locale}/{$moduleName}");
-                        }
+                        // Generar URL del módulo con locale y grupo
+                        $moduleUrl = url("/{$locale}/{$group}/{$moduleName}");
                     @endphp
                     <div class="dropdown-shortcuts-item col-6 px-2 py-3 {{ $isActive ? 'bg-light' : '' }}">
                         <span class="dropdown-shortcuts-icon bg-label-{{ $color }} rounded-circle mb-2">

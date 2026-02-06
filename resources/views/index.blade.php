@@ -17,8 +17,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-
+    <link rel="stylesheet" href="{{ asset('vuexy/vendor/fonts/iconify-icons.css') }}">
+    
     <!-- Core CSS -->
     <link rel="stylesheet" href="/vuexy/vendor/css/core.css">
     <link rel="stylesheet" href="/vuexy/vendor/css/theme-default.css">
@@ -108,12 +108,14 @@
             font-size: 1rem;
             border-radius: 8px;
             transition: all 0.3s;
+            color: #e5e2ff;
         }
 
         .btn-primary-landing:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(115, 103, 240, 0.35);
+            color: #f4f4f4;
         }
 
         .btn-outline-landing {

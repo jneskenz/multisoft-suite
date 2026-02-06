@@ -85,11 +85,34 @@ class FortifyServiceProvider extends ServiceProvider
     }
 
     /**
-     * Obtener URL home con locale (post-login)
+     * Obtener URL home con locale y grupo (post-login)
+     *
+     * Redirige a:
+     * - /{locale}/{group}/welcome si el usuario tiene un solo grupo
+     * - /{locale}/select-group si tiene múltiples grupos
      */
     protected function getHomeUrl(Request $request): string
     {
-        return '/' . $this->getLocaleFromRequest($request) . '/welcome';
+        $locale = $this->getLocaleFromRequest($request);
+
+        // Si el usuario tiene un solo grupo, redirigir directamente
+        if (auth()->check()) {
+            $groups = auth()->user()->group_companies;
+
+            if ($groups->count() === 1) {
+                $groupCode = $groups->first()->code;
+
+                return "/{$locale}/{$groupCode}/welcome";
+            }
+
+            // Si tiene múltiples grupos, ir a selección
+            if ($groups->count() > 1) {
+                return "/{$locale}/select-group";
+            }
+        }
+
+        // Fallback: usar grupo por defecto PE
+        return "/{$locale}/PE/welcome";
     }
 
     /**

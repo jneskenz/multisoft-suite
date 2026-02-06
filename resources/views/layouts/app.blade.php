@@ -31,11 +31,19 @@
     <link rel="stylesheet" href="/vuexy/css/demo.css">
 
     <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{{ asset('vuexy/vendor/libs/pickr/pickr-themes.css') }}" />
     <link rel="stylesheet" href="/vuexy/vendor/libs/perfect-scrollbar/perfect-scrollbar.css">
 
     <!-- Helpers -->
     <script src="/vuexy/vendor/js/helpers.js"></script>
+    <script src="{{ asset('vuexy/vendor/js/template-customizer.js') }}"></script>
     <script src="/vuexy/js/config.js"></script>
+
+    {{-- Custom Styles --}}
+    <style>
+        .cursor-pointer { cursor: pointer; }
+        .icon-48px { font-size: 48px; }
+    </style>
 
     @stack('styles')
     @livewireStyles
@@ -49,7 +57,10 @@
             <!-- Menu -->
             <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
                 <div class="app-brand demo">
-                    <a href="{{ url(app()->getLocale() . '/welcome') }}" class="app-brand-link">
+                    @php
+                        $currentGroup = current_group_code() ?? request()->route('group') ?? 'PE';
+                    @endphp
+                    <a href="{{ url(app()->getLocale() . '/' . $currentGroup . '/welcome') }}" class="app-brand-link">
                         <span class="app-brand-logo demo">
                             <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -57,7 +68,17 @@
                                 <path d="M2 23L16 30L30 23V9L16 16L2 9V23Z" fill="#7367f0" fill-opacity="0.5" />
                             </svg>
                         </span>
-                        <span class="app-brand-text demo menu-text fw-bold">{{ config('app.name') }}</span>
+                        @if ($activeModule ?? false)
+                            @php
+                                $locale = app()->getLocale();
+                                $moduleDisplayName = is_array($activeModule['display_name'] ?? null)
+                                    ? ($activeModule['display_name'][$locale] ?? $activeModule['display_name']['en'] ?? $activeModule['alias'])
+                                    : ($activeModule['display_name'] ?? $activeModule['alias']);
+                            @endphp
+                            <span class="app-brand-text demo ms-2 menu-text fw-bold">Multisoft {{ $moduleDisplayName }}</span>
+                        @else
+                            <span class="app-brand-text demo ms-2 menu-text fw-bold">{{ config('app.name') }}</span>
+                        @endif
                     </a>
                     <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
                         <i class="ti tabler-circle-dot menu-toggle-icon d-none d-xl-block align-middle"></i>
@@ -67,86 +88,8 @@
 
                 <div class="menu-inner-shadow"></div>
 
-                <ul class="menu-inner py-1">
-                    <!-- Dashboard -->
-                    <li class="menu-item {{ request()->routeIs('welcome') ? 'active' : '' }}">
-                        <a href="{{ url(app()->getLocale() . '/welcome') }}" class="menu-link">
-                            <i class="menu-icon tf-icons ti tabler-home"></i>
-                            <div>{{ __('Inicio') }}</div>
-                        </a>
-                    </li>
-
-                    <!-- Modules Section -->
-                    <li class="menu-header small text-uppercase">
-                        <span class="menu-header-text">{{ __('Módulos') }}</span>
-                    </li>
-
-                    @can('access.core')
-                        <li class="menu-item {{ request()->is('*/core*') ? 'active open' : '' }}">
-                            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                <i class="menu-icon tf-icons ti tabler-settings"></i>
-                                <div>Core</div>
-                            </a>
-                            <ul class="menu-sub">
-                                <li class="menu-item">
-                                    <a href="{{ url(app()->getLocale() . '/core/users') }}" class="menu-link">
-                                        <div>{{ __('Usuarios') }}</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="{{ url(app()->getLocale() . '/core/roles') }}" class="menu-link">
-                                        <div>{{ __('Roles') }}</div>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    @endcan
-
-                    @can('access.erp')
-                        <li class="menu-item {{ request()->is('*/erp*') ? 'active' : '' }}">
-                            <a href="{{ url(app()->getLocale() . '/erp') }}" class="menu-link">
-                                <i class="menu-icon tf-icons ti tabler-building"></i>
-                                <div>ERP</div>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('access.hr')
-                        <li class="menu-item {{ request()->is('*/hr*') ? 'active' : '' }}">
-                            <a href="{{ url(app()->getLocale() . '/hr') }}" class="menu-link">
-                                <i class="menu-icon tf-icons ti tabler-users"></i>
-                                <div>RRHH</div>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('access.crm')
-                        <li class="menu-item {{ request()->is('*/crm*') ? 'active' : '' }}">
-                            <a href="{{ url(app()->getLocale() . '/crm') }}" class="menu-link">
-                                <i class="menu-icon tf-icons ti tabler-chart-pie"></i>
-                                <div>CRM</div>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('access.fms')
-                        <li class="menu-item {{ request()->is('*/fms*') ? 'active' : '' }}">
-                            <a href="{{ url(app()->getLocale() . '/fms') }}" class="menu-link">
-                                <i class="menu-icon tf-icons ti tabler-calculator"></i>
-                                <div>FMS</div>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('access.reports')
-                        <li class="menu-item {{ request()->is('*/reports*') ? 'active' : '' }}">
-                            <a href="{{ url(app()->getLocale() . '/reports') }}" class="menu-link">
-                                <i class="menu-icon tf-icons ti tabler-file-analytics"></i>
-                                <div>{{ __('Reportes') }}</div>
-                            </a>
-                        </li>
-                    @endcan
-                </ul>
+                {{-- Sidebar dinámico según el módulo activo --}}
+                <x-sidebar-menu />
             </aside>
             <!-- / Menu -->
 
@@ -163,9 +106,17 @@
                     </div>
 
                     <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
+                       <ul class="navbar-nav flex-row align-items-center justify-content-start">
+                            <!-- Group Switcher (País/Operación) -->
+                            <x-group-switcher />
+                            <!-- Aplicaciones Switcher  -->
+                            <x-apps-switcher/>
+                       </ul>
+
                         <!-- Search -->
+
                         <div class="navbar-nav align-items-center">
-                            <div class="nav-item navbar-search-wrapper px-md-0 px-2 mb-0">
+                            <div class="nav-item navbar-search-wrapper px-2 mb-0">
                                 <a class="nav-item nav-link search-toggler d-flex align-items-center px-0"
                                     href="javascript:void(0);">
                                     <span class="d-inline-block text-body-secondary fw-normal"
@@ -177,10 +128,11 @@
 
                         <ul class="navbar-nav flex-row align-items-center ms-md-auto">
 
-                            <!-- Module Switcher -->
-                            {{-- @include('core::components.module-switcher') --}}
+                            <!-- Group Switcher (País/Operación) -->
+                            {{-- <x-group-switcher /> --}}
+                            
                             <!-- Aplicaciones Switcher  -->
-                            <x-apps-switcher/>
+                            {{-- <x-apps-switcher/> --}}
 
 
                             <!-- Language Switcher -->
@@ -514,8 +466,8 @@
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-0">{{ Auth::user()->name }}</h6>
                                                     <small class="text-body-secondary">
-                                                        @if (Auth::user()->role->count() > 0)
-                                                            {{ ucfirst(Auth::user()->role->first()->name) }}
+                                                        @if (Auth::user()->roles->count() > 0)
+                                                            {{ ucfirst(Auth::user()->roles->first()->name) }}
                                                         @elseif(Auth::user()->is_superadmin)
                                                             Super Admin
                                                         @else
@@ -596,6 +548,9 @@
                             </div>
                         @endif
 
+                        <!-- Breadcrumb -->
+                        @yield('breadcrumb')
+
                         @yield('content')
                     </div>
                     <!-- / Content -->
@@ -629,12 +584,26 @@
     </div>
     <!-- / Layout wrapper -->
 
+    {{-- Toast Notifications --}}
+    <x-toast-notifications />
+
     <!-- Core JS -->
     <script src="/vuexy/vendor/libs/jquery/jquery.js"></script>
     <script src="/vuexy/vendor/libs/popper/popper.js"></script>
     <script src="/vuexy/vendor/js/bootstrap.js"></script>
     <script src="/vuexy/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-    <script src="/vuexy/vendor/js/menu.js"></script>
+    <script src="{{ asset('vuexy/vendor/libs/select2/select2.js') }}"></script>
+    <script src="{{ asset('vuexy/vendor/libs/bootstrap-select/bootstrap-select.js') }}"></script>
+
+    <script src="{{ asset('vuexy/vendor/libs/node-waves/node-waves.js') }}"></script>
+    <script src="{{ asset('vuexy/vendor/libs/hammer/hammer.js') }}"></script>
+    <script src="{{ asset('vuexy/vendor/libs/typeahead-js/typeahead.js') }}"></script>
+    <script src="{{ asset('vuexy/vendor/libs/@algolia/autocomplete-js.js') }}"></script>
+    <script src="{{ asset('vuexy/vendor/libs/pickr/pickr.js') }}"></script>
+    <script src="{{ asset('vuexy/vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
+   
+    <script src="{{ asset('vuexy/vendor/js/menu.js') }}"></script>
+    <script src="{{ asset('vuexy/js/forms-selects.js') }}"></script>
 
     <!-- Main JS -->
     <script src="/vuexy/js/main.js"></script>

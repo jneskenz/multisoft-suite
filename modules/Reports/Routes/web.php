@@ -2,8 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('{locale}')->where(['locale' => 'es|en'])->middleware(['web', 'setlocale', 'auth'])->group(function () {
-    Route::prefix('reports')->name('reports.')->middleware(['can:access.reports'])->group(function () {
-        Route::get('/', fn() => view('reports::index'))->name('index');
-    });
-});
+/*
+|--------------------------------------------------------------------------
+| Web Routes - Reports Module
+|--------------------------------------------------------------------------
+| Las rutas de Reports están centralizadas en routes/web.php principal 
+| usando la estructura /{locale}/{group}/reports/...
+*/
+
+// Todas las rutas de Reports están en routes/web.php
