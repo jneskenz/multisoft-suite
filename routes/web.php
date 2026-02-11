@@ -95,6 +95,17 @@ Route::localeGroup(function () {
         Route::get('/permissions', fn () => view('core::permissions.index'))->name('core.permissions.index');
         Route::get('/settings', fn () => view('core::settings.index'))->name('core.settings.index');
         Route::get('/audit', fn () => view('core::audit.index'))->name('core.audit.index');
+
+        // Menu de Gestión de Grupos de Empresa
+        Route::middleware('can:core.groups.view')->group(function () {
+            Route::get('/grupo-empresa', )->name('core.grupo_empresa.index');
+            Route::get('/grupo-empresa/create', [\Modules\Core\Http\Controllers\GroupCompanyController::class, 'create'])->name('core.grupo_empresa.create');
+            Route::post('/grupo-empresa', [\Modules\Core\Http\Controllers\GroupCompanyController::class, 'store'])->name('core.grupo_empresa.store');
+            Route::get('/grupo-empresa/{grupo}', [\Modules\Core\Http\Controllers\GroupCompanyController::class, 'show'])->name('core.grupo_empresa.show');
+            Route::get('/grupo-empresa/{grupo}/edit', [\Modules\Core\Http\Controllers\GroupCompanyController::class, 'edit'])->name('core.grupo_empresa.edit');
+            Route::put('/grupo-empresa/{grupo}', [\Modules\Core\Http\Controllers\GroupCompanyController::class, 'update'])->name('core.grupo_empresa.update');
+            Route::delete('/grupo-empresa/{grupo}', [\Modules\Core\Http\Controllers\GroupCompanyController::class, 'destroy'])->name('core.grupo_empresa.destroy');
+        });
     });
 
     /*
@@ -117,6 +128,7 @@ Route::localeGroup(function () {
     Route::prefix('hr')->middleware('can:access.hr')->group(function () {
         Route::get('/', fn () => view('hr::index'))->name('hr.index');
         Route::get('/employees', fn () => view('hr::employees.index'))->name('hr.employees.index');
+        Route::get('/empleados', fn () => view('hr::empleados.index'))->name('hr.empleados.index');
         Route::get('/attendance', fn () => view('hr::attendance.index'))->name('hr.attendance.index');
         Route::get('/payroll', fn () => view('hr::payroll.index'))->name('hr.payroll.index');
     });

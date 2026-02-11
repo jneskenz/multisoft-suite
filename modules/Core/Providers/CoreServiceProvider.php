@@ -14,6 +14,8 @@ use Modules\Core\Console\Commands\ListModulesCommand;
 use Modules\Core\Livewire\UserManager;
 use Modules\Core\Livewire\RoleManager;
 use Modules\Core\Livewire\PermissionManager;
+use Modules\Core\Livewire\CompanyManager;
+use Modules\Core\Livewire\LocationManager;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -33,12 +35,12 @@ class CoreServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(RouteServiceProvider::class);
-        
+
         // Registrar ModuleService como singleton
         $this->app->singleton(ModuleService::class, function ($app) {
             return new ModuleService();
         });
-        
+
         // Alias corto para el servicio
         $this->app->alias(ModuleService::class, 'modules');
     }
@@ -57,7 +59,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerLivewireComponents();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
     }
-    
+
     /**
      * Registrar componentes Livewire del módulo.
      */
@@ -67,8 +69,10 @@ class CoreServiceProvider extends ServiceProvider
         Livewire::component('core-user-manager', UserManager::class);
         Livewire::component('core-role-manager', RoleManager::class);
         Livewire::component('core-permission-manager', PermissionManager::class);
+        Livewire::component('core-company-manager', CompanyManager::class);
+        Livewire::component('core-location-manager', LocationManager::class);
     }
-    
+
     /**
      * Registrar comandos Artisan.
      */
@@ -81,7 +85,7 @@ class CoreServiceProvider extends ServiceProvider
             ]);
         }
     }
-    
+
     /**
      * Registrar middleware del módulo.
      */
@@ -90,11 +94,11 @@ class CoreServiceProvider extends ServiceProvider
         // Registrar el middleware en el grupo 'web'
         $router = $this->app['router'];
         $router->aliasMiddleware('detect.module', DetectActiveModule::class);
-        
+
         // Añadir al grupo web automáticamente
         $router->pushMiddlewareToGroup('web', DetectActiveModule::class);
     }
-    
+
     /**
      * Registrar view composers.
      */

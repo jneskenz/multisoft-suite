@@ -57,7 +57,7 @@
                         $moduleUrl = url("/{$locale}/{$group}/{$moduleName}");
                     @endphp
                     <div class="dropdown-shortcuts-item col-6 px-2 py-3 {{ $isActive ? 'bg-light' : '' }}">
-                        <span class="dropdown-shortcuts-icon bg-label-{{ $color }} rounded-circle mb-2">
+                        <span class="dropdown-shortcuts-icon bg-label-{{ $color }} rounded mb-2">
                             <i class="icon-base {{ $icon }} icon-26px"></i>
                         </span>
                         <a href="{{ $moduleUrl }}" class="stretched-link fw-medium {{ $isActive ? 'text-primary' : 'text-heading' }}">

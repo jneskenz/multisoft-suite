@@ -42,6 +42,28 @@ return [
                     'route' => 'core.permissions.index',
                     'permission' => 'core.permissions.view',
                 ],
+                [
+                    'key' => 'group-companies',
+                    'title' => ['es' => 'Grupos de Empresa', 'en' => 'Group Companies'],
+                    'icon' => 'ti tabler-building-community',
+                    'route' => 'core.grupo_empresa.index',
+                    'permission' => 'core.groups.view', // ajusta al permiso real
+                ],
+                [
+                    'key' => 'companies',
+                    'title' => ['es' => 'Empresas', 'en' => 'Companies'],
+                    'icon' => 'ti tabler-building',
+                    'route' => 'core.companies.index',
+                    'permission' => 'core.companies.view',
+                ],
+                [
+                    'key' => 'locations',
+                    'title' => ['es' => 'Locales', 'en' => 'Locations'],
+                    'icon' => 'ti tabler-map-pin',
+                    'route' => 'core.locations.index',
+                    'permission' => 'core.locations.view',
+                ],
+
             ],
         ],
         [

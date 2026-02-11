@@ -42,6 +42,14 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'core.roles.delete', 'display_name' => 'Eliminar Roles', 'module' => 'core', 'description' => 'Eliminar roles'],
             ['name' => 'core.settings.view', 'display_name' => 'Ver Configuración', 'module' => 'core', 'description' => 'Ver configuración del sistema'],
             ['name' => 'core.settings.edit', 'display_name' => 'Editar Configuración', 'module' => 'core', 'description' => 'Modificar configuración del sistema'],
+            ['name' => 'core.companies.view', 'display_name' => 'Ver Empresas', 'module' => 'core', 'description' => 'Ver listado de empresas'],
+            ['name' => 'core.companies.create', 'display_name' => 'Crear Empresas', 'module' => 'core', 'description' => 'Crear nuevas empresas'],
+            ['name' => 'core.companies.edit', 'display_name' => 'Editar Empresas', 'module' => 'core', 'description' => 'Editar empresas existentes'],
+            ['name' => 'core.companies.delete', 'display_name' => 'Eliminar Empresas', 'module' => 'core', 'description' => 'Eliminar empresas'],
+            ['name' => 'core.locations.view', 'display_name' => 'Ver Locales', 'module' => 'core', 'description' => 'Ver listado de locales'],
+            ['name' => 'core.locations.create', 'display_name' => 'Crear Locales', 'module' => 'core', 'description' => 'Crear nuevos locales'],
+            ['name' => 'core.locations.edit', 'display_name' => 'Editar Locales', 'module' => 'core', 'description' => 'Editar locales existentes'],
+            ['name' => 'core.locations.delete', 'display_name' => 'Eliminar Locales', 'module' => 'core', 'description' => 'Eliminar locales'],
 
             // ERP Module
             ['name' => 'access.erp', 'display_name' => 'Acceso a ERP', 'module' => 'erp', 'description' => 'Acceso al módulo ERP'],
@@ -64,6 +72,10 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'hr.employees.create', 'display_name' => 'Crear Empleados', 'module' => 'hr', 'description' => 'Crear empleados'],
             ['name' => 'hr.employees.edit', 'display_name' => 'Editar Empleados', 'module' => 'hr', 'description' => 'Editar empleados'],
             ['name' => 'hr.employees.delete', 'display_name' => 'Eliminar Empleados', 'module' => 'hr', 'description' => 'Eliminar empleados'],
+            ['name' => 'hr.empleados.view', 'display_name' => 'Ver Empleados', 'module' => 'hr', 'description' => 'Ver empleados'],
+            ['name' => 'hr.empleados.create', 'display_name' => 'Crear Empleados', 'module' => 'hr', 'description' => 'Crear empleados'],
+            ['name' => 'hr.empleados.edit', 'display_name' => 'Editar Empleados', 'module' => 'hr', 'description' => 'Editar empleados'],
+            ['name' => 'hr.empleados.delete', 'display_name' => 'Eliminar Empleados', 'module' => 'hr', 'description' => 'Eliminar empleados'],
             ['name' => 'hr.attendance.view', 'display_name' => 'Ver Asistencia', 'module' => 'hr', 'description' => 'Ver asistencia'],
             ['name' => 'hr.attendance.create', 'display_name' => 'Registrar Asistencia', 'module' => 'hr', 'description' => 'Registrar asistencia'],
             ['name' => 'hr.attendance.edit', 'display_name' => 'Editar Asistencia', 'module' => 'hr', 'description' => 'Editar asistencia'],
@@ -154,11 +166,32 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
         $manager->syncPermissions([
-            'access.erp', 'erp.inventory.view', 'erp.sales.view', 'erp.sales.create', 'erp.purchases.view', 'erp.purchases.create',
-            'access.hr', 'hr.employees.view', 'hr.attendance.view', 'hr.payroll.view',
-            'access.crm', 'crm.leads.view', 'crm.leads.create', 'crm.opportunities.view', 'crm.opportunities.create', 'crm.activities.view', 'crm.activities.create',
-            'access.fms', 'fms.accounts.view', 'fms.entries.view', 'fms.reports.view',
-            'access.reports', 'reports.view', 'reports.generate', 'reports.export',
+            'access.erp',
+            'erp.inventory.view',
+            'erp.sales.view',
+            'erp.sales.create',
+            'erp.purchases.view',
+            'erp.purchases.create',
+            'access.hr',
+            'hr.employees.view',
+            'hr.empleados.view',
+            'hr.attendance.view',
+            'hr.payroll.view',
+            'access.crm',
+            'crm.leads.view',
+            'crm.leads.create',
+            'crm.opportunities.view',
+            'crm.opportunities.create',
+            'crm.activities.view',
+            'crm.activities.create',
+            'access.fms',
+            'fms.accounts.view',
+            'fms.entries.view',
+            'fms.reports.view',
+            'access.reports',
+            'reports.view',
+            'reports.generate',
+            'reports.export',
         ]);
 
         // Contador - Acceso a FMS y reportes
@@ -171,10 +204,19 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
         $accountant->syncPermissions([
-            'access.fms', 'fms.accounts.view', 'fms.accounts.create', 'fms.accounts.edit',
-            'fms.entries.view', 'fms.entries.create', 'fms.entries.edit',
-            'fms.reports.view', 'fms.reports.generate',
-            'access.reports', 'reports.view', 'reports.generate', 'reports.export',
+            'access.fms',
+            'fms.accounts.view',
+            'fms.accounts.create',
+            'fms.accounts.edit',
+            'fms.entries.view',
+            'fms.entries.create',
+            'fms.entries.edit',
+            'fms.reports.view',
+            'fms.reports.generate',
+            'access.reports',
+            'reports.view',
+            'reports.generate',
+            'reports.export',
         ]);
 
         // Vendedor - Acceso a CRM y ventas ERP
@@ -187,10 +229,20 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
         $salesperson->syncPermissions([
-            'access.erp', 'erp.sales.view', 'erp.sales.create', 'erp.inventory.view',
-            'access.crm', 'crm.leads.view', 'crm.leads.create', 'crm.leads.edit',
-            'crm.opportunities.view', 'crm.opportunities.create', 'crm.opportunities.edit',
-            'crm.activities.view', 'crm.activities.create', 'crm.activities.edit',
+            'access.erp',
+            'erp.sales.view',
+            'erp.sales.create',
+            'erp.inventory.view',
+            'access.crm',
+            'crm.leads.view',
+            'crm.leads.create',
+            'crm.leads.edit',
+            'crm.opportunities.view',
+            'crm.opportunities.create',
+            'crm.opportunities.edit',
+            'crm.activities.view',
+            'crm.activities.create',
+            'crm.activities.edit',
         ]);
 
         // RRHH - Acceso a módulo de recursos humanos
@@ -203,10 +255,22 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
         $hrManager->syncPermissions([
-            'access.hr', 'hr.employees.view', 'hr.employees.create', 'hr.employees.edit',
-            'hr.attendance.view', 'hr.attendance.create', 'hr.attendance.edit',
-            'hr.payroll.view', 'hr.payroll.create', 'hr.payroll.process',
-            'access.reports', 'reports.view', 'reports.generate',
+            'access.hr',
+            'hr.employees.view',
+            'hr.employees.create',
+            'hr.employees.edit',
+            'hr.empleados.view',
+            'hr.empleados.create',
+            'hr.empleados.edit',
+            'hr.attendance.view',
+            'hr.attendance.create',
+            'hr.attendance.edit',
+            'hr.payroll.view',
+            'hr.payroll.create',
+            'hr.payroll.process',
+            'access.reports',
+            'reports.view',
+            'reports.generate',
         ]);
 
         // Usuario básico - Solo lectura
@@ -219,7 +283,9 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
         $user->syncPermissions([
-            'access.erp', 'erp.inventory.view', 'erp.sales.view',
+            'access.erp',
+            'erp.inventory.view',
+            'erp.sales.view',
         ]);
     }
 }

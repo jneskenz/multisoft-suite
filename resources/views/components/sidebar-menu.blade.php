@@ -35,6 +35,41 @@
             </a>
         </li>
     @else
+
+        {{-- @php
+            // Ejemplo de grupos, reemplazar por los grupos reales del usuario
+            $groups = [
+                ['code' => 'PE', 'icon' => 'ti tabler-building-bank', 'color' => 'primary', 'name' => 'Mi empresa'],
+                ['code' => 'MX', 'icon' => 'ti tabler-clipboard', 'color' => 'primary', 'name' => 'Administrativo'],
+                ['code' => 'CL', 'icon' => 'ti tabler-coins', 'color' => 'primary', 'name' => 'Remuneraciones'],
+                ['code' => 'BO', 'icon' => 'ti tabler-checklist', 'color' => 'primary', 'name' => 'Control de Asistencia'],
+                ['code' => 'CO', 'icon' => 'ti tabler-topology-star-3', 'color' => 'primary', 'name' => 'Desarrollo Organizacional'],
+                ['code' => 'VE', 'icon' => 'ti tabler-school', 'color' => 'primary', 'name' => 'Capacitaciones'],
+            ];
+        @endphp
+        <li class="menu-item">
+            <a class="menu-link py-0 bg-label-primary">
+                @foreach ($groups as $g)
+                    @if($group === $g['code'])
+                        <i data-bs-toggle="tooltip" title="{{ $g['name'] }}" class="menu-icon tf-icons {{ $g['icon'] }} icon-20px"></i>
+                    @endif
+                @endforeach
+                <div class="w-100 py-2 d-flex justify-content-between ">
+                    @foreach ($groups as $g)
+                        @if($group != $g['code'])
+                            <!-- <a href="{{ url($locale . '/' . $g['code'] . '/' . $currentModule['alias']) }}" title="{{ $g['name'] }}"> -->
+                                <button class="btn btn-icon btn-sm btn-outline-secondary"
+                                data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="tooltip-light" 
+                                 title="{{ $g['name'] }}">
+                                    <i class="{{ $g['icon'] }} icon-20px"></i>
+                                </button>
+                            <!-- </a> -->
+                        @endif
+                    @endforeach
+                </div>
+            </a>
+        </li> --}}
+
         {{-- Menú del módulo activo --}}
         @php
             $moduleDisplayName = is_array($currentModule['display_name'] ?? null)
