@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Modules\HR\Enums\EstadoContrato;
 use Modules\Core\Models\Company;
 use Modules\Core\Models\GroupCompany;
 use Modules\Core\Models\Location;
@@ -87,6 +90,25 @@ class Empleado extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+
+    /**
+     * Todos los contratos del empleado
+     */
+    public function contratos(): HasMany
+    {
+        return $this->hasMany(Contrato::class, 'empleado_id');
+    }
+
+    /**
+     * Contrato vigente (firmado y sin terminar)
+     */
+    public function contratoVigente(): HasOne
+    {
+        return $this->hasOne(Contrato::class, 'empleado_id')
+            ->where('estado_contrato', EstadoContrato::FIRMADO)
+            ->whereNull('fecha_terminacion')
+            ->latest('fecha_inicio');
     }
 
     /**

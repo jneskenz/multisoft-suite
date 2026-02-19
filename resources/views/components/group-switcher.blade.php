@@ -18,7 +18,7 @@
            aria-expanded="false">
            <span class="fi fi-{{ Str::lower($currentGroup->code) }} fis icon-22px rounded-circle"></span>
             {{-- <span class="fs-5">{{ $currentGroup->flag_emoji }}</span> --}}
-            <span class="d-none d-md-inline ms-1">{{ $currentGroup->code }}</span>
+            {{-- <span class="d-none d-md-inline ms-1">{{ $currentGroup->code }}</span> --}}
             {{-- <i class="ti tabler-chevron-down ti-xs ms-1 d-none d-md-inline"></i> --}}
         </a>
         

@@ -39,23 +39,22 @@
 <div>
    {{-- Card --}}
     <div class="card">
-      {{-- Header con indicador de grupo --}}
-      <x-card-header title="{{ __('Registros de empleados') }}" 
-         description="{{ __('Empleados con acceso a') }} {{ $group?->business_name ?? $groupCode }}"
-         textColor="text-plus" icon="ti tabler-users" iconColor="bg-label-info">
-         @can('hr.employees.create')
-         <button onclick="Livewire.dispatch('openCreateModal')"
-               class="btn btn-primary btn-md btn-md-normal px-1 px-md-3 waves-effect d-flex align-items-center"
-               title="{{ __('Nuevo Empleado') }}">
-               <i class="ti tabler-plus me-md-1"></i>
-               <span class="d-none d-md-inline ms-1">{{ __('Nuevo Empleado') }}</span>
-         </button>
-         @endcan
+        {{-- Header con indicador de grupo --}}
+        <x-card-header title="{{ __('Registros de empleados') }}" 
+            description="{{ __('Empleados con acceso a') }} {{ $group?->business_name ?? $groupCode }}"
+            textColor="text-plus" icon="ti tabler-users" iconColor="bg-label-info">
+            @can('hr.employees.create')
+            <button onclick="Livewire.dispatch('openCreateModal')"
+                class="btn btn-primary btn-md btn-md-normal px-1 px-md-3 waves-effect d-flex align-items-center"
+                title="{{ __('Nuevo Empleado') }}">
+                <i class="ti tabler-plus me-md-1"></i>
+                <span class="d-none d-md-inline ms-1">{{ __('Nuevo Empleado') }}</span>
+            </button>
+            @endcan
+        </x-card-header>
 
-      </x-card-header>
-
-      {{-- Componente Livewire --}}
-      <livewire:hr-empleado-manager />
+        {{-- Componente Livewire --}}
+        <livewire:hr-empleado-manager />
     </div>
 </div>
 @endsection

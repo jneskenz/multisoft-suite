@@ -54,7 +54,7 @@
             <a href="javascript:void(0);" class="menu-link disabled">
                 <i class="menu-icon tf-icons {{ $icon }}"></i>
                 <div>{{ $title }}</div>
-                <span class="badge bg-label-secondary ms-auto">Próximamente</span>
+                <span class="badge bg-label-secondary ms-auto" title="Próximamente">Próx.</span>
             </a>
         @endif
     </li>

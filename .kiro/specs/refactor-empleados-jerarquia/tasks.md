@@ -4,7 +4,7 @@
 
 ### 1. Preparación y Migraciones de Base de Datos
 
-- [ ] 1.1 Crear migración para modificar tabla hr_empleados
+- [x] 1.1 Crear migración para modificar tabla hr_empleados
   - Agregar columna `user_id` (nullable, FK a users)
   - Eliminar columna `password`
   - Modificar columna `email` (remover unique constraint)
@@ -12,7 +12,7 @@
   - Agregar unique constraints para `documento_numero` y `codigo_empleado`
   - Agregar índices necesarios
 
-- [ ] 1.2 Crear migración para eliminar tabla hr_empleado_group_access
+- [x] 1.2 Crear migración para eliminar tabla hr_empleado_group_access
   - Drop tabla `hr_empleado_group_access`
   - Verificar que no haya dependencias
 
@@ -23,7 +23,7 @@
 
 ### 2. Actualizar Modelos
 
-- [ ] 2.1 Actualizar modelo Empleado
+- [x] 2.1 Actualizar modelo Empleado
   - Actualizar array `$fillable` con nuevos campos
   - Eliminar `password` de `$hidden`
   - Actualizar `$casts` para incluir fechas
@@ -31,11 +31,11 @@
   - Mantener relaciones existentes (tenant, group, company, location)
   - Actualizar constantes de estado (agregar ESTADO_CESADO = 2)
 
-- [ ] 2.2 Eliminar modelo EmpleadoGroupAccess
+- [x] 2.2 Eliminar modelo EmpleadoGroupAccess
   - Eliminar archivo `modules/HR/Models/EmpleadoGroupAccess.php`
   - Verificar que no haya referencias en el código
 
-- [ ] 2.3 Actualizar scopes en modelo Empleado
+- [x] 2.3 Actualizar scopes en modelo Empleado
   - Verificar scope `forCurrentGroup`
   - Agregar scope `active()`, `suspended()`, `cesado()`
   - Mantener trait `BelongsToTenant` si existe

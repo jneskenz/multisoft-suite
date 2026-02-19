@@ -10,8 +10,8 @@
         'icon' => 'ti tabler-building-community',
         'items' => [
             ['name' => 'Core', 'url' => url(app()->getLocale() . '/' . $groupCode . '/core')],
-            ['name' => __('Administración')],
-            ['name' => __('Grupos de Empresa'), 'url' => route('core.grupo_empresa.index')],
+            ['name' => __('Administraciï¿½n')],
+            ['name' => __('Grupos de Empresa'), 'url' => route('core.group_companies.index')],
             ['name' => __('Detalle')],
         ],
     ];
@@ -24,7 +24,7 @@
 @section('content')
 <div>
     <div class="card">
-        <x-card-header title="{{ __('Información del Grupo') }}"
+        <x-card-header title="{{ __('Informaciï¿½n del Grupo') }}"
             description="{{ __('Consulta los datos del grupo seleccionado') }}"
             textColor="text-plus" icon="ti tabler-building-community" iconColor="bg-label-secondary" />
 
@@ -39,20 +39,20 @@
                     <div class="fw-semibold">{{ $grupo->nombre ?? $grupo->display_name ?? 'N/A' }}</div>
                 </div>
                 <div class="col-md-4">
-                    <small class="text-muted">{{ __('Código') }}</small>
+                    <small class="text-muted">{{ __('Cï¿½digo') }}</small>
                     <div class="fw-semibold">{{ $grupo->code ?? '-' }}</div>
                 </div>
                 <div class="col-12">
-                    <small class="text-muted">{{ __('Descripción') }}</small>
-                    <p class="mb-0 text-muted">{{ $grupo->descripcion ?? __('Sin descripción') }}</p>
+                    <small class="text-muted">{{ __('Descripciï¿½n') }}</small>
+                    <p class="mb-0 text-muted">{{ $grupo->descripcion ?? __('Sin descripciï¿½n') }}</p>
                 </div>
             </div>
 
             <div class="d-flex gap-2 justify-content-end mt-4">
-                <a href="{{ route('core.grupo_empresa.index') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('core.group_companies.index') }}" class="btn btn-outline-secondary">
                     <i class="ti tabler-arrow-left me-1"></i>{{ __('Volver') }}
                 </a>
-                <a href="{{ route('core.grupo_empresa.edit', $grupo->id) }}" class="btn btn-warning">
+                <a href="{{ route('core.group_companies.edit', $grupo->id) }}" class="btn btn-warning">
                     <i class="ti tabler-edit me-1"></i>{{ __('Editar') }}
                 </a>
             </div>

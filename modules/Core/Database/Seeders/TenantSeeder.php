@@ -3,6 +3,7 @@
 namespace Modules\Core\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Core\Models\Company;
 use Modules\Core\Models\Tenant;
 use Modules\Core\Models\GroupCompany;
 
@@ -103,5 +104,26 @@ class TenantSeeder extends Seeder
         );
 
         $this->command->info('Grupo empresa creado: ' . $groupEC->business_name . ' (' . $groupEC->code . ')');
+
+        // Aquí se podrían crear empresas 
+        $company = Company::updateOrCreate(
+            [
+                'group_company_id' => $groupPE->id,
+                'code' => 'PE-001',
+            ],
+            [
+                'name' => 'Multisoft Solutions Perú SAC',
+                'tax_id' => '20123456789',
+                // 'tax_id_type' => 'RUC',
+                'address' => 'Av. Principal 123, Lima',
+                // 'city' => 'Lima',
+                'phone' => '+51 1 234 5678',
+                'email' => 'contacto@multisoft.pe',
+                // 'website' => 'https://multisoft.pe',
+                'status' => 'active',
+            ]
+        );
+
+
     }
 }

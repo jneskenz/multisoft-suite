@@ -23,6 +23,9 @@ return new class extends Migration
             $table->string('name', 150)->comment('Razón social');
             $table->string('trade_name', 150)->nullable()->comment('Nombre comercial');
             $table->string('tax_id', 20)->nullable()->comment('RUC de esta empresa específica');
+            $table->string('tax_id_type', 10)->nullable()->comment('RUC, RUT');
+            
+            $table->string('website', 255)->nullable();
             
             // Configuración regional (puede sobrescribir del grupo)
             $table->string('timezone', 50)->nullable()->comment('Zona horaria (NULL = hereda del grupo)');

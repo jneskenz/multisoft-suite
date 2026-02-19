@@ -74,7 +74,7 @@
 
 <!-- Quick Access Cards -->
 <div class="row g-6">
-    @can('hr.employees.view')
+    @can('hr.empleados.view')
     <div class="col-md-4">
         <div class="card h-100">
             <div class="card-body text-center">
@@ -83,7 +83,7 @@
                 </div>
                 <h5>{{ __('Empleados') }}</h5>
                 <p class="text-muted">{{ __('Directorio de empleados') }}</p>
-                <a href="{{ route('hr.employees.index', app()->getLocale()) }}" class="btn btn-primary">
+                <a href="{{ route('hr.empleados.index', app()->getLocale()) }}" class="btn btn-primary">
                     {{ __('Acceder') }}
                 </a>
             </div>

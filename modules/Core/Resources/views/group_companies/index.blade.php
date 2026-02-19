@@ -22,11 +22,9 @@
     <x-breadcrumbs :items="$breadcrumbs">
         <x-slot:extra>
             <div class="d-flex align-items-center gap-2">
-                @if($group)
-                <span class="badge bg-label-primary" title="{{ $group->business_name ?? $group->trade_name }}">
-                    <i class="ti tabler-map-pin me-1"></i>{{ $group->code }}
+                <span class="badge bg-label-secondary" title="{{ __('Los grupos empresas son compartidos entre todos los grupos') }}">
+                    <i class="ti tabler-world me-1"></i>{{ __('Global') }}
                 </span>
-                @endif
                 <span class="badge bg-label-secondary">
                     <i class="ti tabler-building-community"></i>
                 </span>
@@ -41,7 +39,7 @@
         <x-card-header title="{{ __('Gestión de Grupos de Empresa') }}"
             description="{{ __('Administra los países/operaciones disponibles en el tenant') }}"
             textColor="text-plus" icon="ti tabler-building-skyscraper" iconColor="bg-label-secondary">
-            <a href="{{ route('core.grupo_empresa.create') }}"
+            <a href="{{ route('core.group_companies.create') }}"
                class="btn btn-primary btn-md btn-md-normal px-1 px-md-3 d-flex align-items-center">
                 <i class="ti tabler-plus me-md-1"></i>
                 <span class="d-none d-md-inline ms-1">{{ __('Nuevo Grupo') }}</span>
@@ -78,13 +76,13 @@
                                     <td class="text-muted">{{ $grupo->descripcion ?? $grupo->business_name ?? '' }}</td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a href="{{ route('core.grupo_empresa.show', $grupo->id) }}" class="btn btn-sm btn-icon btn-text-secondary" title="{{ __('Ver detalle') }}">
+                                            <a href="{{ route('core.group_companies.show', $grupo->id) }}" class="btn btn-sm btn-icon btn-text-secondary" title="{{ __('Ver detalle') }}">
                                                 <i class="ti tabler-eye"></i>
                                             </a>
-                                            <a href="{{ route('core.grupo_empresa.edit', $grupo->id) }}" class="btn btn-sm btn-icon btn-text-warning" title="{{ __('Editar') }}">
+                                            <a href="{{ route('core.group_companies.edit', $grupo->id) }}" class="btn btn-sm btn-icon btn-text-warning" title="{{ __('Editar') }}">
                                                 <i class="ti tabler-edit"></i>
                                             </a>
-                                            <form action="{{ route('core.grupo_empresa.destroy', $grupo->id) }}" method="POST" onsubmit="return confirm('{{ __('�Est�s seguro de eliminar este grupo?') }}');">
+                                            <form action="{{ route('core.group_companies.destroy', $grupo->id) }}" method="POST" onsubmit="return confirm('{{ __('�Est�s seguro de eliminar este grupo?') }}');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-icon btn-text-danger" title="{{ __('Eliminar') }}">

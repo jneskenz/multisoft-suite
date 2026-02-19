@@ -9,6 +9,8 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Modules\Core\Models\GroupCompany;
+use Modules\Core\Models\Company;
+use Modules\Core\Models\Location;
 use Modules\HR\Models\Empleado;
 
 class EmpleadoManager extends Component

@@ -11,7 +11,7 @@ class ContextController extends BaseController
      */
     public function select()
     {
-        return view('erp::context.select');
+        return redirect()->to(group_route('erp.index'));
     }
 
     /**
@@ -25,7 +25,7 @@ class ContextController extends BaseController
 
         session(['erp.company_id' => $request->company_id]);
 
-        return redirect()->route('erp.dashboard')
+        return redirect()->to(group_route('erp.index'))
             ->with('success', __('Contexto de empresa establecido'));
     }
 }

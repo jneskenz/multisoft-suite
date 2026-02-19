@@ -45,8 +45,8 @@ return [
                 [
                     'key' => 'group-companies',
                     'title' => ['es' => 'Grupos de Empresa', 'en' => 'Group Companies'],
-                    'icon' => 'ti tabler-building-community',
-                    'route' => 'core.grupo_empresa.index',
+                    'icon' => 'ti tabler-building-skyscraper',
+                    'route' => 'core.group_companies.index',
                     'permission' => 'core.groups.view', // ajusta al permiso real
                 ],
                 [

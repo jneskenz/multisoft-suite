@@ -89,7 +89,11 @@
                 <div class="menu-inner-shadow"></div>
 
                 {{-- Sidebar dinámico según el módulo activo --}}
-                <x-sidebar-menu />
+                @if (($activeModule['alias'] ?? null) === 'hr')
+                    <x-sidebar-menu-hr />
+                @else
+                    <x-sidebar-menu />
+                @endif
             </aside>
             <!-- / Menu -->
 

@@ -111,8 +111,17 @@
                                             data-bs-toggle="tooltip"
                                             title="{{ __('Editar empleado') }}"
                                         >
-                                            <i class="ti tabler-edit"></i>
+                                            <i class="ti tabler-edit icon-18px"></i>
                                         </button>
+
+                                        <a href="{{ route('hr.empleados.show', $empleado->id) }}"
+                                            wire:click="show({{ $empleado->id }})"
+                                            class="btn btn-sm btn-icon btn-label-primary"
+                                            data-bs-toggle="tooltip"
+                                            title="{{ __('Ver ficha del empleado') }}"
+                                        >
+                                            <i class="ti tabler-user-square-rounded icon-18px"></i>
+                                        </a>
 
                                         <div class="dropdown">
                                             <button
@@ -121,7 +130,7 @@
                                             >
                                                 <i class="ti tabler-dots-vertical"></i>
                                             </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
+                                            <ul class="dropdown-menu">
                                                 @if (!$showTrashedEmpleados)
                                                     @if ((int) $empleado->estado === \Modules\HR\Models\Empleado::ESTADO_ACTIVO)
                                                         <li>
@@ -130,7 +139,7 @@
                                                                 wire:click="suspend({{ $empleado->id }})"
                                                             >
                                                                 <button class="btn btn-sm btn-icon btn-label-warning me-2">
-                                                                    <i class="ti tabler-ban"></i>
+                                                                    <i class="ti tabler-ban icon-18px"></i>
                                                                 </button>
                                                                 <span class="lh-1">{{ __('Suspender') }}</span>
                                                             </a>
@@ -142,7 +151,7 @@
                                                                 wire:click="activate({{ $empleado->id }})"
                                                             >
                                                                 <button class="btn btn-sm btn-icon btn-label-success me-2">
-                                                                    <i class="ti tabler-check"></i>
+                                                                    <i class="ti tabler-check icon-18px"></i>
                                                                 </button>
                                                                 <span class="lh-1">{{ __('Activar') }}</span>
                                                             </a>
@@ -153,7 +162,7 @@
                                                                 wire:click="cesar({{ $empleado->id }})"
                                                             >
                                                                 <button class="btn btn-sm btn-icon btn-label-dark me-2">
-                                                                    <i class="ti tabler-user-x"></i>
+                                                                    <i class="ti tabler-user-x icon-18px"></i>
                                                                 </button>
                                                                 <span class="lh-1">{{ __('Marcar como cesado') }}</span>
                                                             </a>
@@ -165,7 +174,7 @@
                                                                 wire:click="activate({{ $empleado->id }})"
                                                             >
                                                                 <button class="btn btn-sm btn-icon btn-label-success me-2">
-                                                                    <i class="ti tabler-check"></i>
+                                                                    <i class="ti tabler-check icon-18px"></i>
                                                                 </button>
                                                                 <span class="lh-1">{{ __('Activar') }}</span>
                                                             </a>
@@ -178,7 +187,7 @@
                                                             wire:click="confirmDelete({{ $empleado->id }})"
                                                         >
                                                             <button class="btn btn-sm btn-icon btn-label-danger me-2">
-                                                                <i class="ti tabler-trash"></i>
+                                                                <i class="ti tabler-trash icon-18px"></i>
                                                             </button>
                                                             <span class="lh-1">{{ __('Eliminar') }}</span>
                                                         </a>
@@ -190,7 +199,7 @@
                                                             wire:click="confirmRestore({{ $empleado->id }})"
                                                         >
                                                             <button class="btn btn-sm btn-icon btn-label-success me-2">
-                                                                <i class="ti tabler-refresh"></i>
+                                                                <i class="ti tabler-refresh icon-18px"></i>
                                                             </button>
                                                             <span class="lh-1">{{ __('Restaurar') }}</span>
                                                         </a>
@@ -202,7 +211,7 @@
                                                             wire:click="confirmForceDelete({{ $empleado->id }})"
                                                         >
                                                             <button class="btn btn-sm btn-icon btn-label-dark me-2">
-                                                                <i class="ti tabler-trash-x"></i>
+                                                                <i class="ti tabler-trash-x icon-18px"></i>
                                                             </button>
                                                             <span class="lh-1">{{ __('Eliminar permanente') }}</span>
                                                         </a>

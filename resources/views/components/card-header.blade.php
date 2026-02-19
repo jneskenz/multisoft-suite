@@ -34,7 +34,7 @@ if(isset($estado)){
                 <i class="{{ $icon ?? 'ti tabler-question' }}"></i>
             </div>
             <div class="card-info">
-                <h5 class="mb-0">{{ $title }}</h5>
+                <h5 class="mb-0 text-start">{{ $title }}</h5>
                 <small class="{{ $textColor ?? 'text-muted' }}">{!! $description !!}</small>
             </div>
         </div>
