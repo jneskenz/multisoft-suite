@@ -6,7 +6,9 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Http\Kernel;
 use Livewire\Livewire;
+use Modules\Core\Contracts\PatientDirectoryContract;
 use Modules\Core\Services\ModuleService;
+use Modules\Core\Services\NullPatientDirectoryService;
 use Modules\Core\Http\Middleware\DetectActiveModule;
 use Modules\Core\Http\ViewComposers\ModulesComposer;
 use Modules\Core\Console\Commands\ClearModuleCacheCommand;
@@ -43,6 +45,11 @@ class CoreServiceProvider extends ServiceProvider
 
         // Alias corto para el servicio
         $this->app->alias(ModuleService::class, 'modules');
+
+        // Implementacion por defecto (sin datos) para integraciones cross-modulo.
+        $this->app->singleton(PatientDirectoryContract::class, function () {
+            return new NullPatientDirectoryService();
+        });
     }
 
     /**

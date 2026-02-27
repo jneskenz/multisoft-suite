@@ -3,6 +3,11 @@
 namespace Modules\Partners\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
+use Modules\Partners\Models\Empresa;
+use Modules\Partners\Models\Persona;
+use Modules\Partners\Models\PersonaEmpresa;
+use Modules\Partners\Models\TipoPersona;
 
 class PartnerController extends BaseController
 {
@@ -11,7 +16,22 @@ class PartnerController extends BaseController
      */
     public function index()
     {
-        return view('partners::index');
+        $stats = [
+            'personas' => Schema::hasTable('partners_personas') ? Persona::count() : 0,
+            'empresas' => Schema::hasTable('partners_empresas') ? Empresa::count() : 0,
+            'relaciones' => Schema::hasTable('partners_persona_empresa') ? PersonaEmpresa::count() : 0,
+            'clientes' => Schema::hasTable('partners_tipo_personas')
+                ? TipoPersona::where('tipo', 'cliente')->where('estado', true)->count()
+                : 0,
+            'proveedores' => Schema::hasTable('partners_tipo_personas')
+                ? TipoPersona::where('tipo', 'proveedor')->where('estado', true)->count()
+                : 0,
+            'pacientes' => Schema::hasTable('partners_tipo_personas')
+                ? TipoPersona::where('tipo', 'paciente')->where('estado', true)->count()
+                : 0,
+        ];
+
+        return view('partners::index', compact('stats'));
     }
 
     /**

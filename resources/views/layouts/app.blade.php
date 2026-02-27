@@ -612,6 +612,8 @@
     <!-- Main JS -->
     <script src="/vuexy/js/main.js"></script>
 
+    <script src="/vuexy/js/app-chat.js"></script>
+
     @livewireScripts
     @stack('scripts')
 </body>

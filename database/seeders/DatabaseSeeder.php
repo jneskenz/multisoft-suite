@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Modules\Core\Database\Seeders\CompanySeeder;
-use Modules\Core\Database\Seeders\LocationSeeder;
-use Modules\Core\Database\Seeders\TenantSeeder;
-use Modules\Core\Database\Seeders\SettingsSeeder;
+use Modules\Core\Database\Seeders\DatabaseSeeder as CoreDatabaseSeeder;
+use Modules\ERP\Database\Seeders\DatabaseSeeder as ERPDatabaseSeeder;
+use Modules\HR\Database\Seeders\DatabaseSeeder as HRDatabaseSeeder;
+use Modules\Partners\Database\Seeders\DatabaseSeeder as PartnersDatabaseSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,11 +18,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesAndPermissionsSeeder::class,
-            TenantSeeder::class,       // Crear tenant y grupos empresa
-            CompanySeeder::class,      // Crear empresas por grupo
-            LocationSeeder::class,     // Crear locales por empresa
-            AdminUserSeeder::class,    // Crear usuario admin con tenant
-            SettingsSeeder::class,     // Crear configuraciones por defecto
+            AdminUserSeeder::class,
+            CoreDatabaseSeeder::class, // Crear empresas por grupo
+            PartnersDatabaseSeeder::class, // Datos base de Partners
+            ERPDatabaseSeeder::class,  // Catalogos base de ERP
+            HRDatabaseSeeder::class,   // Catalogos base de HR
         ]);
     }
 }

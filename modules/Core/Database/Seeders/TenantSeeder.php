@@ -31,7 +31,7 @@ class TenantSeeder extends Seeder
                 'max_group_companies' => 10,
                 'max_companies' => 50,
                 'max_locations' => 200,
-                'modules_enabled' => ['core', 'erp', 'crm', 'hr', 'fms', 'reports'],
+                'modules_enabled' => ['core', 'partners', 'erp', 'crm', 'hr', 'fms', 'reports'],
                 'subscription_starts_at' => now(),
                 'subscription_ends_at' => now()->addYear(),
                 'primary_color' => '#7367F0',

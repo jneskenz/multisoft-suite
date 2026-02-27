@@ -19,6 +19,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Crear permisos
         $this->createPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Crear roles
         $this->createRoles();
@@ -51,6 +52,23 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'core.locations.edit', 'display_name' => 'Editar Locales', 'module' => 'core', 'description' => 'Editar locales existentes'],
             ['name' => 'core.locations.delete', 'display_name' => 'Eliminar Locales', 'module' => 'core', 'description' => 'Eliminar locales'],
 
+            // Partners Module
+            ['name' => 'access.partners', 'display_name' => 'Acceso a Partners', 'module' => 'partners', 'description' => 'Acceso al módulo Partners'],
+            ['name' => 'partners.view', 'display_name' => 'Ver Partners', 'module' => 'partners', 'description' => 'Ver dashboard de partners'],
+            ['name' => 'partners.create', 'display_name' => 'Crear Partners', 'module' => 'partners', 'description' => 'Crear partners'],
+            ['name' => 'partners.edit', 'display_name' => 'Editar Partners', 'module' => 'partners', 'description' => 'Editar partners'],
+            ['name' => 'partners.delete', 'display_name' => 'Eliminar Partners', 'module' => 'partners', 'description' => 'Eliminar partners'],
+            ['name' => 'partners.export', 'display_name' => 'Exportar Partners', 'module' => 'partners', 'description' => 'Exportar partners'],
+            ['name' => 'partners.import', 'display_name' => 'Importar Partners', 'module' => 'partners', 'description' => 'Importar partners'],
+            ['name' => 'partners.customers.view', 'display_name' => 'Ver Clientes', 'module' => 'partners', 'description' => 'Ver clientes'],
+            ['name' => 'partners.suppliers.view', 'display_name' => 'Ver Proveedores', 'module' => 'partners', 'description' => 'Ver proveedores'],
+            ['name' => 'partners.contacts.view', 'display_name' => 'Ver Contactos', 'module' => 'partners', 'description' => 'Ver contactos'],
+            ['name' => 'partners.personas.view', 'display_name' => 'Ver Personas', 'module' => 'partners', 'description' => 'Ver personas'],
+            ['name' => 'partners.empresas.view', 'display_name' => 'Ver Empresas Partners', 'module' => 'partners', 'description' => 'Ver empresas de partners'],
+            ['name' => 'partners.relaciones.view', 'display_name' => 'Ver Relaciones Persona Empresa', 'module' => 'partners', 'description' => 'Ver relaciones entre personas y empresas'],
+            ['name' => 'partners.clientes.view', 'display_name' => 'Ver Clientes (Personas)', 'module' => 'partners', 'description' => 'Ver personas con tipo cliente'],
+            ['name' => 'partners.proveedores.view', 'display_name' => 'Ver Proveedores (Personas)', 'module' => 'partners', 'description' => 'Ver personas con tipo proveedor'],
+            ['name' => 'partners.pacientes.view', 'display_name' => 'Ver Pacientes (Personas)', 'module' => 'partners', 'description' => 'Ver personas con tipo paciente'],
             // ERP Module
             ['name' => 'access.erp', 'display_name' => 'Acceso a ERP', 'module' => 'erp', 'description' => 'Acceso al módulo ERP'],
             ['name' => 'erp.inventory.view', 'display_name' => 'Ver Inventario', 'module' => 'erp', 'description' => 'Ver inventario'],
@@ -65,7 +83,11 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'erp.purchases.create', 'display_name' => 'Crear Compras', 'module' => 'erp', 'description' => 'Crear compras'],
             ['name' => 'erp.purchases.edit', 'display_name' => 'Editar Compras', 'module' => 'erp', 'description' => 'Editar compras'],
             ['name' => 'erp.purchases.delete', 'display_name' => 'Eliminar Compras', 'module' => 'erp', 'description' => 'Eliminar compras'],
-
+            ['name' => 'erp.catalogos.view', 'display_name' => 'Ver catalogos', 'module' => 'erp', 'description' => 'Ver catalogos'],
+            ['name' => 'erp.catalogos.create', 'display_name' => 'Crear catalogos', 'module' => 'erp', 'description' => 'Crear registros de catalogos'],
+            ['name' => 'erp.catalogos.edit', 'display_name' => 'Editar catalogos', 'module' => 'erp', 'description' => 'Editar catalogos'],
+            ['name' => 'erp.catalogos.delete', 'display_name' => 'Eliminar catalogos', 'module' => 'erp', 'description' => 'Eliminar del catalogos'],
+            
             // HR Module
             ['name' => 'access.hr', 'display_name' => 'Acceso a RRHH', 'module' => 'hr', 'description' => 'Acceso al módulo RRHH'],
             ['name' => 'hr.employees.view', 'display_name' => 'Ver Empleados', 'module' => 'hr', 'description' => 'Ver empleados'],
@@ -154,7 +176,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'is_system' => true,
             ]
         );
-        $admin->syncPermissions(Permission::pluck('name')->toArray());
+        $admin->syncPermissions(Permission::all());
 
         // Manager - Acceso a módulos operativos
         $manager = Role::updateOrCreate(
@@ -165,7 +187,18 @@ class RolesAndPermissionsSeeder extends Seeder
                 'is_system' => false,
             ]
         );
-        $manager->syncPermissions([
+        $manager->syncPermissions($this->resolvePermissions([
+            'access.partners',
+            'partners.view',
+            'partners.customers.view',
+            'partners.suppliers.view',
+            'partners.contacts.view',
+            'partners.personas.view',
+            'partners.empresas.view',
+            'partners.relaciones.view',
+            'partners.clientes.view',
+            'partners.proveedores.view',
+            'partners.pacientes.view',
             'access.erp',
             'erp.inventory.view',
             'erp.sales.view',
@@ -192,7 +225,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reports.view',
             'reports.generate',
             'reports.export',
-        ]);
+        ]));
 
         // Contador - Acceso a FMS y reportes
         $accountant = Role::updateOrCreate(
@@ -203,7 +236,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'is_system' => false,
             ]
         );
-        $accountant->syncPermissions([
+        $accountant->syncPermissions($this->resolvePermissions([
             'access.fms',
             'fms.accounts.view',
             'fms.accounts.create',
@@ -217,7 +250,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reports.view',
             'reports.generate',
             'reports.export',
-        ]);
+        ]));
 
         // Vendedor - Acceso a CRM y ventas ERP
         $salesperson = Role::updateOrCreate(
@@ -228,7 +261,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'is_system' => false,
             ]
         );
-        $salesperson->syncPermissions([
+        $salesperson->syncPermissions($this->resolvePermissions([
             'access.erp',
             'erp.sales.view',
             'erp.sales.create',
@@ -243,7 +276,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'crm.activities.view',
             'crm.activities.create',
             'crm.activities.edit',
-        ]);
+        ]));
 
         // RRHH - Acceso a módulo de recursos humanos
         $hrManager = Role::updateOrCreate(
@@ -254,7 +287,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'is_system' => false,
             ]
         );
-        $hrManager->syncPermissions([
+        $hrManager->syncPermissions($this->resolvePermissions([
             'access.hr',
             'hr.employees.view',
             'hr.employees.create',
@@ -271,7 +304,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'access.reports',
             'reports.view',
             'reports.generate',
-        ]);
+        ]));
 
         // Usuario básico - Solo lectura
         $user = Role::updateOrCreate(
@@ -282,10 +315,21 @@ class RolesAndPermissionsSeeder extends Seeder
                 'is_system' => true,
             ]
         );
-        $user->syncPermissions([
+        $user->syncPermissions($this->resolvePermissions([
             'access.erp',
             'erp.inventory.view',
             'erp.sales.view',
-        ]);
+        ]));
+    }
+
+    /**
+     * Obtener modelos de permisos existentes por nombre.
+     */
+    protected function resolvePermissions(array $names)
+    {
+        return Permission::query()
+            ->whereIn('name', $names)
+            ->get();
     }
 }
+

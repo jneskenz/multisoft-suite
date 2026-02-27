@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         
-        // Tabla: categorias
+        // Tabla: tipo categorias
         Schema::create('erp_tipo_categorias', function (Blueprint $table) {
             $table->id();
             $table->string('codigo', 50);
             $table->string('nombre', 100);
             $table->string('descripcion', 255)->nullable();
-            $table->boolean('estado')->default(1);
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,8 +29,8 @@ return new class extends Migration
             $table->string('codigo', 50);
             $table->string('nombre', 100);
             $table->string('descripcion', 255)->nullable();
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_tipo_categoria_id')->nullable()->constrained('erp_tipo_categorias')->onDelete('set null');
+            $table->foreignId('tipo_categoria_id')->nullable()->constrained('erp_tipo_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -40,8 +40,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -51,8 +51,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -62,8 +62,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -73,8 +73,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -84,8 +84,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -95,8 +95,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -106,9 +106,9 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
-            $table->foreignId('erp_color_id')->nullable()->constrained('erp_colores')->onDelete('set null');
+            // $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('color_id')->nullable()->constrained('erp_colores')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -118,8 +118,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -129,7 +129,7 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -139,7 +139,7 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -149,8 +149,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -160,7 +160,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -170,8 +171,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -181,8 +182,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -192,8 +193,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -203,8 +204,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -214,7 +215,7 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -224,7 +225,7 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -234,7 +235,7 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -244,7 +245,7 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -254,8 +255,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 20)->unique();
             $table->string('nombre', 100);
-            $table->boolean('estado')->default(1);
-            $table->foreignId('erp_categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->foreignId('categoria_id')->nullable()->constrained('erp_categorias')->onDelete('set null');
+            $table->enum('estado', [0, 1])->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

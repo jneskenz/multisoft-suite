@@ -16,6 +16,10 @@ return [
         'erp.purchases.create',
         'erp.purchases.edit',
         'erp.purchases.delete',
+        'erp.catalogos.view',
+        'erp.catalogos.create',
+        'erp.catalogos.edit',
+        'erp.catalogos.delete',
     ],
     'default_currency' => env('ERP_DEFAULT_CURRENCY', 'PEN'),
 ];

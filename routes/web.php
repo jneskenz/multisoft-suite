@@ -5,6 +5,10 @@ use Modules\HR\Http\Controllers\CargoController;
 use Modules\HR\Http\Controllers\ContratoController;
 use Modules\HR\Http\Controllers\PlantillaController;
 use Modules\HR\Http\Controllers\DepartamentoController;
+use Modules\ERP\Http\Controllers\CatalogoController;
+use Modules\ERP\Http\Controllers\TicketController;
+use Modules\Partners\Http\Controllers\PartnerDirectoryController;
+use Modules\Partners\Http\Controllers\PartnerController;
 use Modules\Core\Services\ModuleService;
 // use Modules\HR\Services\ModuleService;
 
@@ -121,14 +125,134 @@ Route::localeGroup(function () {
 
     /*
     |----------------------------------------------------------------------
-    | Módulo ERP - Planificación de Recursos
+    | Modulo Partners - Terceros
+    |----------------------------------------------------------------------
+    */
+    Route::prefix('partners')->middleware('can:access.partners')->name('partners.')->group(function () {
+        Route::get('/', [PartnerController::class, 'index'])
+            ->middleware('can:partners.view')
+            ->name('index');
+
+        Route::get('/personas/create', [PartnerDirectoryController::class, 'createPersona'])
+            ->middleware('can:partners.create')
+            ->name('personas.create');
+
+        Route::get('/personas', [PartnerDirectoryController::class, 'personas'])
+            ->middleware('can:partners.personas.view')
+            ->name('personas.index');
+
+        Route::post('/personas', [PartnerDirectoryController::class, 'storePersona'])
+            ->middleware('can:partners.create')
+            ->name('personas.store');
+
+        Route::get('/personas/{persona}/edit', [PartnerDirectoryController::class, 'editPersona'])
+            ->middleware('can:partners.edit')
+            ->name('personas.edit');
+
+        Route::put('/personas/{persona}', [PartnerDirectoryController::class, 'updatePersona'])
+            ->middleware('can:partners.edit')
+            ->name('personas.update');
+
+        Route::delete('/personas/{persona}', [PartnerDirectoryController::class, 'destroyPersona'])
+            ->middleware('can:partners.delete')
+            ->name('personas.destroy');
+
+        Route::get('/empresas/create', [PartnerDirectoryController::class, 'createEmpresa'])
+            ->middleware('can:partners.create')
+            ->name('empresas.create');
+
+        Route::get('/empresas', [PartnerDirectoryController::class, 'empresas'])
+            ->middleware('can:partners.empresas.view')
+            ->name('empresas.index');
+
+        Route::post('/empresas', [PartnerDirectoryController::class, 'storeEmpresa'])
+            ->middleware('can:partners.create')
+            ->name('empresas.store');
+
+        Route::get('/empresas/{empresa}/edit', [PartnerDirectoryController::class, 'editEmpresa'])
+            ->middleware('can:partners.edit')
+            ->name('empresas.edit');
+
+        Route::put('/empresas/{empresa}', [PartnerDirectoryController::class, 'updateEmpresa'])
+            ->middleware('can:partners.edit')
+            ->name('empresas.update');
+
+        Route::delete('/empresas/{empresa}', [PartnerDirectoryController::class, 'destroyEmpresa'])
+            ->middleware('can:partners.delete')
+            ->name('empresas.destroy');
+
+        Route::get('/relaciones/create', [PartnerDirectoryController::class, 'createRelacion'])
+            ->middleware('can:partners.create')
+            ->name('relaciones.create');
+
+        Route::get('/relaciones', [PartnerDirectoryController::class, 'relaciones'])
+            ->middleware('can:partners.relaciones.view')
+            ->name('relaciones.index');
+
+        Route::post('/relaciones', [PartnerDirectoryController::class, 'storeRelacion'])
+            ->middleware('can:partners.create')
+            ->name('relaciones.store');
+
+        Route::get('/relaciones/{relacion}/edit', [PartnerDirectoryController::class, 'editRelacion'])
+            ->middleware('can:partners.edit')
+            ->name('relaciones.edit');
+
+        Route::put('/relaciones/{relacion}', [PartnerDirectoryController::class, 'updateRelacion'])
+            ->middleware('can:partners.edit')
+            ->name('relaciones.update');
+
+        Route::delete('/relaciones/{relacion}', [PartnerDirectoryController::class, 'destroyRelacion'])
+            ->middleware('can:partners.delete')
+            ->name('relaciones.destroy');
+
+        Route::get('/clientes', [PartnerDirectoryController::class, 'clientes'])
+            ->middleware('can:partners.clientes.view')
+            ->name('clientes.index');
+
+        Route::get('/proveedores', [PartnerDirectoryController::class, 'proveedores'])
+            ->middleware('can:partners.proveedores.view')
+            ->name('proveedores.index');
+
+        Route::get('/pacientes', [PartnerDirectoryController::class, 'pacientes'])
+            ->middleware('can:partners.pacientes.view')
+            ->name('pacientes.index');
+
+        // Compatibilidad temporal con rutas anteriores.
+        Route::get('/customers', function () {
+            return redirect()->route('partners.clientes.index', request()->route()->parameters());
+        })->name('customers.index');
+
+        Route::get('/suppliers', function () {
+            return redirect()->route('partners.proveedores.index', request()->route()->parameters());
+        })->name('suppliers.index');
+
+        Route::get('/contacts', function () {
+            return redirect()->route('partners.relaciones.index', request()->route()->parameters());
+        })->name('contacts.index');
+    });
+
+    /*
+    |----------------------------------------------------------------------
+    | Modulo ERP - Planificacion de Recursos
     |----------------------------------------------------------------------
     */
     Route::prefix('erp')->middleware('can:access.erp')->group(function () {
         Route::get('/', fn() => view('erp::index'))->name('erp.index');
-        Route::get('/inventory', fn() => view('erp::inventory.index'))->name('erp.inventory.index');
-        Route::get('/sales', fn() => view('erp::sales.index'))->name('erp.sales.index');
-        Route::get('/purchases', fn() => view('erp::purchases.index'))->name('erp.purchases.index');
+        // Route::get('/inventory', fn() => view('erp::inventory.index'))->name('erp.inventory.index');
+        // Route::get('/sales', fn() => view('erp::sales.index'))->name('erp.sales.index');
+        // Route::get('/purchases', fn() => view('erp::purchases.index'))->name('erp.purchases.index');
+        
+        // Tickets
+        Route::get('/tickets', [TicketController::class, 'index'])->name('erp.tickets.index');
+        Route::get('/tickets/create', [TicketController::class, 'create'])->name('erp.tickets.create');
+        Route::post('/tickets', [TicketController::class, 'store'])->name('erp.tickets.store');
+        Route::get('/tickets/patients/search', [TicketController::class, 'searchPatients'])->name('erp.tickets.patients.search');
+
+        // catalogos
+        Route::get('/catalogos', [CatalogoController::class, 'index'])->name('erp.catalogos.index');
+        Route::get('/catalogos/{catalogo}', [CatalogoController::class, 'show'])->name('erp.catalogos.show');
+        
+
     });
 
     /*

@@ -3,6 +3,11 @@
 namespace Modules\ERP\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+use Modules\ERP\Livewire\CatalogoMedidasManager;
+use Modules\ERP\Livewire\CatalogoModalManager;
+use Modules\ERP\Livewire\CatalogoTableManager;
+use Modules\ERP\Livewire\TicketManager;
 
 class ERPServiceProvider extends ServiceProvider
 {
@@ -19,7 +24,16 @@ class ERPServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerTranslations();
+        $this->registerLivewireComponents();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+    }
+
+    protected function registerLivewireComponents(): void
+    {
+        Livewire::component('erp-catalogo-medidas-manager', CatalogoMedidasManager::class);
+        Livewire::component('erp-catalogo-modal-manager', CatalogoModalManager::class);
+        Livewire::component('erp-catalogo-table-manager', CatalogoTableManager::class);
+        Livewire::component('erp-ticket-manager', TicketManager::class);
     }
 
     protected function registerConfig(): void

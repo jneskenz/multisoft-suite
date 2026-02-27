@@ -10,6 +10,44 @@
 ## php artisan route:list --name=hr.cargos
 
 
+Uso rápido
+
+## Solo revisar (sin cambiar):
+## powershell -NoProfile -ExecutionPolicy Bypass -File scripts/remove-utf8-bom.ps1 -Root modules/ERP -Include *.blade.php -WhatIf
+
+## Corregir BOM:
+## powershell -NoProfile -ExecutionPolicy Bypass -File scripts/remove-utf8-bom.ps1 -Root modules/ERP -Include *.blade.php
+
+## Para todo el proyecto BLADE + PHP + JS
+## powershell -NoProfile -ExecutionPolicy Bypass -File scripts/remove-utf8-bom.ps1 -Root . -Include *.blade.php,*.php,*.js
+
+
+
+
+
+
+1) Migraciones por módulo (ejecución)
+php artisan migrate --path=modules/Core/Database/Migrations
+php artisan migrate --path=modules/ERP/Database/Migrations
+php artisan migrate --path=modules/HR/Database/Migrations
+php artisan migrate --path=modules/CRM/Database/Migrations
+php artisan migrate --path=modules/FMS/Database/Migrations
+php artisan migrate --path=modules/Partners/Database/Migrations
+php artisan migrate --path=modules/Reports/Database/Migrations
+
+- Rollback por módulo:
+php artisan migrate:rollback --path=modules/ERP/Database/Migrations --step=1
+
+2) Seeders por módulo (ejecución)
+php artisan db:seed --class="Modules\Core\Database\Seeders\DatabaseSeeder"
+php artisan db:seed --class="Modules\HR\Database\Seeders\DatabaseSeeder"
+
+
+
+
+
+
+
 ## ESTADO DEL SISTEMA
 
 A) Catálogos transversales (para casi todas las tablas)

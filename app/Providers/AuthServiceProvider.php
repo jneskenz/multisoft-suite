@@ -38,7 +38,7 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         // Gates de acceso a módulos
-        $modules = ['core', 'erp', 'hr', 'crm', 'fms', 'reports'];
+        $modules = ['core', 'partners', 'erp', 'hr', 'crm', 'fms', 'reports'];
 
         foreach ($modules as $module) {
             Gate::define("access.{$module}", function (User $user) use ($module) {
@@ -48,11 +48,41 @@ class AuthServiceProvider extends ServiceProvider
 
         // Gates de permisos específicos por módulo
         $this->registerCoreGates();
+        $this->registerPartnersGates();
         $this->registerErpGates();
         $this->registerHrGates();
         $this->registerCrmGates();
         $this->registerFmsGates();
         $this->registerReportsGates();
+    }
+
+    /**
+     * Gates del mÃ³dulo Partners
+     */
+    protected function registerPartnersGates(): void
+    {
+        $permissions = [
+            'partners.view',
+            'partners.create',
+            'partners.edit',
+            'partners.delete',
+            'partners.export',
+            'partners.import',
+            'partners.personas.view',
+            'partners.empresas.view',
+            'partners.relaciones.view',
+            'partners.clientes.view',
+            'partners.proveedores.view',
+            'partners.pacientes.view',
+            // Compatibilidad con nomenclatura inicial
+            'partners.customers.view',
+            'partners.suppliers.view',
+            'partners.contacts.view',
+        ];
+
+        foreach ($permissions as $permission) {
+            Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
+        }
     }
 
     /**

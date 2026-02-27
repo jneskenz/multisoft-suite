@@ -83,7 +83,7 @@
                 </div>
                 <h5>{{ __('Inventario') }}</h5>
                 <p class="text-muted">{{ __('Gestión de productos y stock') }}</p>
-                <a href="{{ route('erp.inventory.index', app()->getLocale()) }}" class="btn btn-primary">
+                <a href="#" class="btn btn-primary">
                     {{ __('Acceder') }}
                 </a>
             </div>
@@ -100,7 +100,7 @@
                 </div>
                 <h5>{{ __('Ventas') }}</h5>
                 <p class="text-muted">{{ __('Registro de ventas') }}</p>
-                <a href="{{ route('erp.sales.index', app()->getLocale()) }}" class="btn btn-success">
+                <a href="#" class="btn btn-success">
                     {{ __('Acceder') }}
                 </a>
             </div>
@@ -117,7 +117,7 @@
                 </div>
                 <h5>{{ __('Compras') }}</h5>
                 <p class="text-muted">{{ __('Gestión de compras y proveedores') }}</p>
-                <a href="{{ route('erp.purchases.index', app()->getLocale()) }}" class="btn btn-warning">
+                <a href="#" class="btn btn-warning">
                     {{ __('Acceder') }}
                 </a>
             </div>

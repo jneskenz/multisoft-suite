@@ -3,6 +3,8 @@
 namespace Modules\Partners\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\Core\Contracts\PatientDirectoryContract;
+use Modules\Partners\Services\PatientDirectoryService;
 
 class PartnersServiceProvider extends ServiceProvider
 {
@@ -12,6 +14,10 @@ class PartnersServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(RouteServiceProvider::class);
+
+        $this->app->singleton(PatientDirectoryContract::class, function () {
+            return new PatientDirectoryService();
+        });
     }
 
     public function boot(): void
