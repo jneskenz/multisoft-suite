@@ -16,6 +16,7 @@ class Contrato extends Model
 
    protected $fillable = [
       'empleado_id',
+      'cargo_id',
       'numero_contrato',
       'tipo_contrato_id',
       'modalidad_id',
@@ -36,6 +37,7 @@ class Contrato extends Model
 
    protected $casts = [
       'empleado_id'       => 'integer',
+      'cargo_id'          => 'integer',
       'tipo_contrato_id'  => 'integer',
       'modalidad_id'      => 'integer',
       'salario_base'      => 'decimal:2',
@@ -57,6 +59,14 @@ class Contrato extends Model
    public function empleado(): BelongsTo
    {
       return $this->belongsTo(Empleado::class, 'empleado_id');
+   }
+
+   /**
+    * Cargo 
+    */
+   public function cargo(): BelongsTo
+   {
+      return $this->belongsTo(Cargo::class, 'cargo_id');
    }
 
    /**

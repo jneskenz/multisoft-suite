@@ -65,12 +65,14 @@ if (! function_exists('group_route')) {
     {
         // Agregar locale si no está especificado
         if (! isset($parameters['locale'])) {
-            $parameters['locale'] = app()->getLocale();
+            $parameters['locale'] = request()->route()?->parameter('locale') ?? app()->getLocale();
         }
 
         // Agregar grupo si no está especificado
         if (! isset($parameters['group'])) {
-            $parameters['group'] = current_group_code() ?? session('last_group_code', 'PE');
+            $parameters['group'] = request()->route()?->parameter('group')
+                ?? current_group_code()
+                ?? session('last_group_code', 'PE');
         }
 
         return route($name, $parameters, $absolute);

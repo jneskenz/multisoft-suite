@@ -4,6 +4,7 @@ namespace Modules\ERP\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CombinacionMedida extends Model
@@ -33,6 +34,7 @@ class CombinacionMedida extends Model
         'precio_x_mayor_base',
         'precio_x_mayor_maximo',
         'estado',
+        'estado_matriz',
         'created_by',
         'updated_by',
     ];
@@ -49,11 +51,16 @@ class CombinacionMedida extends Model
         'precio_x_mayor_base' => 'decimal:2',
         'precio_x_mayor_maximo' => 'decimal:2',
         'estado' => 'integer',
+        'estado_matriz' => 'integer',
     ];
 
     public function catalogo(): BelongsTo
     {
         return $this->belongsTo(Catalogo::class, 'catalogo_id');
     }
-}
 
+    public function matrizLentes(): HasMany
+    {
+        return $this->hasMany(MatrizLente::class, 'combinacion_medida_id');
+    }
+}

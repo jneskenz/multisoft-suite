@@ -31,8 +31,9 @@
     <link rel="stylesheet" href="/vuexy/css/demo.css">
 
     <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{{ asset('vuexy/vendor/libs/select2/select2.css') }}">
     <link rel="stylesheet" href="{{ asset('vuexy/vendor/libs/pickr/pickr-themes.css') }}" />
-    <link rel="stylesheet" href="/vuexy/vendor/libs/perfect-scrollbar/perfect-scrollbar.css">
+    <link rel="stylesheet" href="{{ asset('vuexy/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}">
 
     <!-- Helpers -->
     <script src="/vuexy/vendor/js/helpers.js"></script>
@@ -43,6 +44,57 @@
     <style>
         .cursor-pointer { cursor: pointer; }
         .icon-48px { font-size: 48px; }
+
+        /*
+        * table-xs — Clase CSS ultra-compacta similar a Bootstrap 5 table-sm
+        * Úsala junto con la clase base .table de Bootstrap o de forma independiente.
+        *
+        * Comparativa de padding:
+        *   .table      → padding: 0.5rem  (8px)
+        *   .table-sm   → padding: 0.25rem (4px)
+        *   .table-xs   → padding: 0.125rem 0.25rem (2px top/bottom, 4px left/right)
+        */
+
+        /* ─── Tamaño de fuente y padding ultra-compacto ─── */
+        .table-xs {
+            font-size: 0.8rem;            /* Texto ligeramente más pequeño */
+        }
+
+        .table-xs > :not(caption) > * > * {
+            padding: 0.125rem 0.25rem;   /* 2px vertical · 4px horizontal */
+        }
+
+        /* ─── Compatibilidad si se usa sin Bootstrap (estilos base mínimos) ─── */
+        .table-xs:not(.table) {
+            width: 100%;
+            border-collapse: collapse;
+            vertical-align: top;
+            color: inherit;
+        }
+
+        .table-xs:not(.table) > thead {
+            vertical-align: bottom;
+        }
+
+        /* ─── Variante standalone con bordes (reemplaza .table.table-bordered) ─── */
+        .table-xs.table-xs-bordered > :not(caption) > * {
+            border-width: 1px 0;
+        }
+
+        .table-xs.table-xs-bordered > :not(caption) > * > * {
+            border-width: 0 1px;
+        }
+
+        /* ─── Variante con filas zebra (reemplaza .table-striped) ─── */
+        .table-xs.table-xs-striped > tbody > tr:nth-of-type(odd) > * {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        /* ─── Variante hover ─── */
+        .table-xs.table-xs-hover > tbody > tr:hover > * {
+            background-color: rgba(0, 0, 0, 0.06);
+        }
+
     </style>
 
     @stack('styles')

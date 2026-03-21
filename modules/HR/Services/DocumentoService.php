@@ -20,10 +20,16 @@ class DocumentoService
     */
    public function generarDesdeContrato(
       Contrato $contrato,
-      PlantillaDocumento $plantilla
+      PlantillaDocumento $plantilla,
+      string $estadoDocumento = '0'
    ): DocumentoGenerado {
       // Cargar relaciones necesarias
-      $contrato->loadMissing(['empleado.company', 'empleado.groupCompany', 'tipoContrato']);
+      $contrato->loadMissing([
+         'empleado.company',
+         'empleado.groupCompany',
+         'cargo.departamento',
+         'tipoContrato'
+      ]);
       $plantilla->loadMissing('tipoDocumento');
 
       // 1. Construir mapa de variables
@@ -43,6 +49,12 @@ class DocumentoService
       $secciones = $this->loadSecciones($plantilla, $variables);
 
       // 5. Generar PDF
+      $marcaAgua = match ($estadoDocumento) {
+         '0' => 'BORRADOR',
+         '1' => 'POR FIRMAR',
+         default => null,
+      };
+
       $pdf = Pdf::loadView('hr::contratos.documento-generado', [
          'plantilla'       => $plantilla,
          'contenido'       => $contenidoResuelto,
@@ -50,6 +62,7 @@ class DocumentoService
          'seccionesCuerpo' => $secciones['cuerpo'],
          'seccionesFinal'  => $secciones['final'],
          'numeroDocumento' => $numeroDocumento,
+         'marcaAgua'       => $marcaAgua,
       ]);
 
       $pdf->setPaper(
@@ -84,7 +97,7 @@ class DocumentoService
          'contrato_id'            => $contrato->id,
          'estado_firmas'          => 'pendiente',
          'ruta_archivo_pdf'       => $filename,
-         'estado_documento'       => '0', // Borrador
+         'estado_documento'       => $estadoDocumento,
          'estado'                 => '1', // Activo
          'fecha_vigencia_desde'   => $contrato->fecha_inicio,
          'fecha_vigencia_hasta'   => $contrato->fecha_fin,
@@ -101,17 +114,18 @@ class DocumentoService
    public function buildVariables(Contrato $contrato): array
    {
       $empleado = $contrato->empleado;
+      $cargo    = $contrato->cargo;
       $company  = $empleado?->company;
       $group    = $empleado?->groupCompany;
 
       return array_filter([
          // ── Empleado ──
-         'empleado.nombre_completo'  => $empleado?->nombre,
+         'empleado.nombre_completo'  => $empleado?->nombre_completo,
          'empleado.documento_tipo'   => $empleado?->documento_tipo,
          'empleado.documento_numero' => $empleado?->documento_numero,
          'empleado.email'            => $empleado?->email,
          'empleado.telefono'         => $empleado?->telefono,
-         'empleado.cargo'            => $empleado?->cargo,
+         'empleado.cargo'            => $cargo?->nombre,
          'empleado.codigo'           => $empleado?->codigo_empleado,
          'empleado.fecha_ingreso'    => $empleado?->fecha_ingreso?->format('d/m/Y'),
          'empleado.direccion'        => '',
@@ -140,9 +154,9 @@ class DocumentoService
          'empresa.representante_dni'   => '',
 
          // ── Cargo ──
-         'cargo.nombre'       => $empleado?->cargo ?? '',
-         'cargo.departamento' => '',
-         'cargo.nivel'        => '',
+         'cargo.nombre'       => $cargo?->nombre ?? '',
+         'cargo.departamento' => $cargo?->departamento?->nombre ?? '',
+         'cargo.nivel'        => $cargo?->nivel ?? '',
       ], fn($v) => $v !== null);
    }
 
@@ -300,6 +314,12 @@ class DocumentoService
       // Fallback: regenerar desde contenido_generado
       $plantilla = $documento->plantillaUtilizada;
 
+      $marcaAgua = match ($documento->estado_documento) {
+         '0' => 'BORRADOR',
+         '1' => 'POR FIRMAR',
+         default => null,
+      };
+
       $pdf = Pdf::loadView('hr::contratos.documento-generado', [
          'plantilla'       => $plantilla,
          'contenido'       => $documento->contenido_generado,
@@ -307,6 +327,7 @@ class DocumentoService
          'seccionesCuerpo' => collect(),
          'seccionesFinal'  => collect(),
          'numeroDocumento' => $documento->numero_documento,
+         'marcaAgua'       => $marcaAgua,
       ]);
 
       if ($plantilla) {

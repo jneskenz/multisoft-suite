@@ -8,10 +8,12 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Modules\ERP\Models\CombinacionMedida;
+use Modules\ERP\Services\GeneradorMatrizLentesService;
 
 class CatalogoMedidasManager extends Component
 {
     public bool $showModal = false;
+    public bool $showMatrizModal = false;
 
     /**
      * @var array{
@@ -56,6 +58,8 @@ class CatalogoMedidasManager extends Component
     public string $precioXMayorMaximo = '';
 
     public int $estado = 1;
+    public int $combinacionMatrizId = 0;
+    public string $matrizAdicionSeleccionada = '';
 
     public function mount(array $combinacionOptions = []): void
     {
@@ -94,6 +98,17 @@ class CatalogoMedidasManager extends Component
     public function cerrarModal(): void
     {
         $this->showModal = false;
+        $this->cerrarModalMatriz();
+    }
+
+    public function cerrarModalMatriz(): void
+    {
+        $this->showMatrizModal = false;
+        $this->combinacionMatrizId = 0;
+        $this->matrizAdicionSeleccionada = '';
+        if ($this->catalogoId > 0) {
+            $this->showModal = true;
+        }
     }
 
     public function updatedSerieVisualId(): void
@@ -237,6 +252,90 @@ class CatalogoMedidasManager extends Component
         }
     }
 
+    public function generarMatriz(int|string $combinacionId): void
+    {
+        $id = (int) $combinacionId;
+        if ($id <= 0 || $this->catalogoId <= 0) {
+            return;
+        }
+
+        $combinacion = CombinacionMedida::query()
+            ->whereKey($id)
+            ->where('catalogo_id', $this->catalogoId)
+            ->first();
+
+        if (!$combinacion) {
+            $this->dispatch('notify', type: 'warning', message: 'La combinacion no pertenece al articulo actual.');
+
+            return;
+        }
+
+        if ((int) ($combinacion->estado_matriz ?? 0) === 1) {
+            $this->verMatriz($id);
+
+            return;
+        }
+
+        try {
+            $resultado = DB::transaction(function () use ($id, $combinacion): array {
+                /** @var GeneradorMatrizLentesService $generador */
+                $generador = app(GeneradorMatrizLentesService::class);
+                $resultado = $generador->generarDesdeCombinacion($id, auth()->id());
+
+                $combinacion->estado_matriz = 1;
+                $combinacion->updated_by = auth()->id();
+                $combinacion->save();
+
+                return $resultado;
+            });
+
+            $this->dispatch(
+                'notify',
+                type: 'success',
+                message: 'Matriz generada correctamente. Celdas: ' . $resultado['filas_generadas']
+            );
+            $this->dispatch(
+                'erp-matriz-generada',
+                title: 'Matriz generada',
+                message: 'La matriz se genero correctamente. Celdas: ' . $resultado['filas_generadas']
+            );
+        } catch (\Throwable $e) {
+            report($e);
+            $this->dispatch('notify', type: 'error', message: 'No se pudo generar la matriz.');
+        }
+    }
+
+    public function verMatriz(int|string $combinacionId): void
+    {
+        $id = (int) $combinacionId;
+        if ($id <= 0 || $this->catalogoId <= 0) {
+            return;
+        }
+
+        $combinacion = CombinacionMedida::query()
+            ->whereKey($id)
+            ->where('catalogo_id', $this->catalogoId)
+            ->first();
+
+        if (!$combinacion) {
+            $this->dispatch('notify', type: 'warning', message: 'La combinacion no pertenece al articulo actual.');
+
+            return;
+        }
+
+        if ((int) ($combinacion->estado_matriz ?? 0) !== 1) {
+            $this->dispatch('notify', type: 'warning', message: 'La matriz aun no fue generada para esta combinacion.');
+
+            return;
+        }
+
+        $this->showModal = false;
+        $this->combinacionMatrizId = $id;
+        $adiciones = $this->matrizAdiciones;
+        $this->matrizAdicionSeleccionada = isset($adiciones[0]['id']) ? (string) $adiciones[0]['id'] : '';
+        $this->showMatrizModal = true;
+    }
+
     public function limpiarFormulario(): void
     {
         $this->serieVisualId = '';
@@ -333,6 +432,7 @@ class CatalogoMedidasManager extends Component
             ->select([
                 'cm.id',
                 'cm.estado',
+                'cm.estado_matriz',
                 'sv.nombre as serie_visual',
                 'ssv.nombre as subserie_visual',
                 'med.nombre as medida_esferica_desde',
@@ -349,6 +449,24 @@ class CatalogoMedidasManager extends Component
                 'cm.precio_x_mayor_base',
                 'cm.precio_x_mayor_maximo',
             ])
+            ->when(
+                Schema::hasTable('erp_matriz_lentes'),
+                function ($query): void {
+                    $subconsulta = DB::table('erp_matriz_lentes')
+                        ->selectRaw('combinacion_medida_id, count(*) as total')
+                        ->whereNull('deleted_at')
+                        ->groupBy('combinacion_medida_id');
+
+                    $query->leftJoinSub($subconsulta, 'ml', function ($join): void {
+                        $join->on('ml.combinacion_medida_id', '=', 'cm.id');
+                    });
+
+                    $query->addSelect(DB::raw('COALESCE(ml.total, 0) as matrices_generadas'));
+                },
+                function ($query): void {
+                    $query->addSelect(DB::raw('0 as matrices_generadas'));
+                }
+            )
             ->where('cm.catalogo_id', $this->catalogoId)
             ->whereNull('cm.deleted_at')
             ->orderByDesc('cm.id')
@@ -358,6 +476,7 @@ class CatalogoMedidasManager extends Component
                 return [
                     'id' => (int) $item->id,
                     'estado' => (int) $item->estado,
+                    'estado_matriz' => (int) ($item->estado_matriz ?? 0),
                     'serie_visual' => (string) ($item->serie_visual ?? '-'),
                     'subserie_visual' => (string) ($item->subserie_visual ?? '-'),
                     'medida_esferica_desde' => (string) ($item->medida_esferica_desde ?? '-'),
@@ -373,10 +492,193 @@ class CatalogoMedidasManager extends Component
                     'precio_x_mayor_minimo' => $this->decimalConFormato((string) $item->precio_x_mayor_minimo),
                     'precio_x_mayor_base' => $this->decimalConFormato((string) $item->precio_x_mayor_base),
                     'precio_x_mayor_maximo' => $this->decimalConFormato((string) $item->precio_x_mayor_maximo),
+                    'matrices_generadas' => isset($item->matrices_generadas) ? (int) $item->matrices_generadas : 0,
                 ];
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    #[Computed]
+    public function matrizResumen(): array
+    {
+        if ($this->combinacionMatrizId <= 0 || !Schema::hasTable('erp_combinacion_medidas')) {
+            return [];
+        }
+
+        $registro = DB::table('erp_combinacion_medidas as cm')
+            ->leftJoin('erp_serie_visual as sv', 'sv.id', '=', 'cm.serie_visual_id')
+            ->leftJoin('erp_subserie_visual as ssv', 'ssv.id', '=', 'cm.subserie_visual_id')
+            ->leftJoin('erp_medida_esferica as med', 'med.id', '=', 'cm.medida_esferica_desde_id')
+            ->leftJoin('erp_medida_esferica as meh', 'meh.id', '=', 'cm.medida_esferica_hasta_id')
+            ->leftJoin('erp_medida_cilindrica as mcd', 'mcd.id', '=', 'cm.medida_cilindrica_desde_id')
+            ->leftJoin('erp_medida_cilindrica as mch', 'mch.id', '=', 'cm.medida_cilindrica_hasta_id')
+            ->leftJoin('erp_adiciones as ad', 'ad.id', '=', 'cm.adicion_desde_id')
+            ->leftJoin('erp_adiciones as ah', 'ah.id', '=', 'cm.adicion_hasta_id')
+            ->select([
+                'cm.id',
+                'sv.nombre as serie_visual',
+                'ssv.nombre as subserie_visual',
+                'med.nombre as medida_esferica_desde',
+                'meh.nombre as medida_esferica_hasta',
+                'mcd.nombre as medida_cilindrica_desde',
+                'mch.nombre as medida_cilindrica_hasta',
+                'ad.nombre as adicion_desde',
+                'ah.nombre as adicion_hasta',
+            ])
+            ->where('cm.id', $this->combinacionMatrizId)
+            ->where('cm.catalogo_id', $this->catalogoId)
+            ->whereNull('cm.deleted_at')
+            ->first();
+
+        if (!$registro) {
+            return [];
+        }
+
+        return [
+            'id' => (int) $registro->id,
+            'serie_visual' => (string) ($registro->serie_visual ?? '-'),
+            'subserie_visual' => (string) ($registro->subserie_visual ?? '-'),
+            'medida_esferica' => trim((string) ($registro->medida_esferica_desde ?? '-') . ' | ' . (string) ($registro->medida_esferica_hasta ?? '-')),
+            'medida_cilindrica' => trim((string) ($registro->medida_cilindrica_desde ?? '-') . ' | ' . (string) ($registro->medida_cilindrica_hasta ?? '-')),
+            'adicion' => trim((string) ($registro->adicion_desde ?? '-') . ' | ' . (string) ($registro->adicion_hasta ?? '-')),
+        ];
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    #[Computed]
+    public function matrizAdiciones(): array
+    {
+        if ($this->combinacionMatrizId <= 0 || !Schema::hasTable('erp_matriz_lentes')) {
+            return [];
+        }
+
+        return DB::table('erp_matriz_lentes as ml')
+            ->leftJoin('erp_adiciones as ad', 'ad.id', '=', 'ml.adicion_id')
+            ->select([
+                'ml.adicion_id as id',
+                DB::raw("COALESCE(ad.nombre, ad.codigo, CAST(ml.adicion_id AS varchar)) as nombre"),
+                DB::raw("COALESCE(ad.codigo, ad.nombre, CAST(ml.adicion_id AS varchar)) as codigo"),
+            ])
+            ->where('ml.catalogo_id', $this->catalogoId)
+            ->where('ml.combinacion_medida_id', $this->combinacionMatrizId)
+            ->whereNull('ml.deleted_at')
+            ->groupBy('ml.adicion_id', 'ad.nombre', 'ad.codigo')
+            ->get()
+            ->map(fn($item) => [
+                'id' => (int) $item->id,
+                'nombre' => (string) ($item->nombre ?? ''),
+                'codigo' => (string) ($item->codigo ?? ''),
+                'valor_orden' => $this->valorOrdenDesdeTexto((string) ($item->codigo ?? $item->nombre ?? '')),
+            ])
+            ->sortBy('valor_orden')
+            ->values()
+            ->map(function (array $item): array {
+                unset($item['valor_orden']);
+
+                return $item;
+            })
+            ->all();
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    #[Computed]
+    public function matrizVista(): array
+    {
+        if ($this->combinacionMatrizId <= 0 || !Schema::hasTable('erp_matriz_lentes')) {
+            return [
+                'columnas' => [],
+                'filas' => [],
+                'celdas' => [],
+                'total_celdas' => 0,
+            ];
+        }
+
+        $query = DB::table('erp_matriz_lentes as ml')
+            ->leftJoin('erp_medida_esferica as me', 'me.id', '=', 'ml.medida_esferica_id')
+            ->leftJoin('erp_medida_cilindrica as mc', 'mc.id', '=', 'ml.medida_cilindrica_id')
+            ->when(
+                Schema::hasTable('erp_matriz_lentes_stock'),
+                function ($query): void {
+                    $subconsulta = DB::table('erp_matriz_lentes_stock')
+                        ->selectRaw('matriz_lente_id, COALESCE(SUM(stock_actual), 0) as stock_total')
+                        ->whereNull('deleted_at')
+                        ->groupBy('matriz_lente_id');
+
+                    $query->leftJoinSub($subconsulta, 'mls', function ($join): void {
+                        $join->on('mls.matriz_lente_id', '=', 'ml.id');
+                    });
+                }
+            )
+            ->select([
+                'ml.id',
+                'ml.codigo_matriz',
+                'ml.adicion_id',
+                'ml.medida_esferica_id',
+                'ml.medida_cilindrica_id',
+                DB::raw("COALESCE(me.nombre, me.codigo, CAST(ml.medida_esferica_id AS varchar)) as medida_esferica"),
+                DB::raw("COALESCE(mc.nombre, mc.codigo, CAST(ml.medida_cilindrica_id AS varchar)) as medida_cilindrica"),
+            ])
+            ->where('ml.catalogo_id', $this->catalogoId)
+            ->where('ml.combinacion_medida_id', $this->combinacionMatrizId)
+            ->whereNull('ml.deleted_at');
+
+        if (Schema::hasTable('erp_matriz_lentes_stock')) {
+            $query->addSelect(DB::raw('COALESCE(mls.stock_total, 0) as stock_total'));
+        } else {
+            $query->addSelect(DB::raw('0 as stock_total'));
+        }
+
+        $adicionId = (int) $this->matrizAdicionSeleccionada;
+        if ($adicionId > 0) {
+            $query->where('ml.adicion_id', $adicionId);
+        }
+
+        $registros = $query->get();
+
+        $columnasMap = [];
+        $filasMap = [];
+        $celdas = [];
+
+        foreach ($registros as $registro) {
+            $esfericaId = (int) $registro->medida_esferica_id;
+            $cilindricaId = (int) $registro->medida_cilindrica_id;
+
+            $filasMap[$esfericaId] = [
+                'id' => $esfericaId,
+                'label' => (string) ($registro->medida_esferica ?? '-'),
+                'orden' => $this->valorOrdenDesdeTexto((string) ($registro->medida_esferica ?? '')),
+            ];
+
+            $columnasMap[$cilindricaId] = [
+                'id' => $cilindricaId,
+                'label' => (string) ($registro->medida_cilindrica ?? '-'),
+                'orden' => $this->valorOrdenDesdeTexto((string) ($registro->medida_cilindrica ?? '')),
+            ];
+
+            $celdas[$esfericaId][$cilindricaId] = [
+                'id' => (int) $registro->id,
+                'codigo_matriz' => (string) ($registro->codigo_matriz ?? ''),
+                'stock_total' => (int) round((float) ($registro->stock_total ?? 0)),
+            ];
+        }
+
+        $filas = $this->ordenarEjesMatriz($filasMap);
+        $columnas = $this->ordenarEjesMatriz($columnasMap);
+
+        return [
+            'columnas' => $columnas,
+            'filas' => $filas,
+            'celdas' => $celdas,
+            'total_celdas' => count($registros),
+        ];
     }
 
     public function etiquetaOpcion(array $option): string
@@ -603,5 +905,40 @@ class CatalogoMedidasManager extends Component
         }
 
         return number_format((float) $value, 2, '.', '');
+    }
+
+    /**
+     * @param array<int,array<string,mixed>> $items
+     * @return array<int,array<string,mixed>>
+     */
+    private function ordenarEjesMatriz(array $items): array
+    {
+        uasort($items, static function (array $a, array $b): int {
+            if (($a['orden'] ?? 0) === ($b['orden'] ?? 0)) {
+                return strcmp((string) ($a['label'] ?? ''), (string) ($b['label'] ?? ''));
+            }
+
+            return ($b['orden'] ?? 0) <=> ($a['orden'] ?? 0);
+        });
+
+        return array_values(array_map(function (array $item): array {
+            unset($item['orden']);
+
+            return $item;
+        }, $items));
+    }
+
+    private function valorOrdenDesdeTexto(string $texto): float
+    {
+        $normalizado = mb_strtoupper(trim(str_replace(',', '.', $texto)));
+        if ($normalizado === '') {
+            return 0.0;
+        }
+
+        if (preg_match('/[-+]?\d+(?:\.\d+)?/', $normalizado, $coincidencias) === 1) {
+            return (float) $coincidencias[0];
+        }
+
+        return 0.0;
     }
 }

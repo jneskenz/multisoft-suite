@@ -156,9 +156,29 @@
             color: #bbb;
             padding: 4pt 0;
         }
+
+        /* ── Marca de agua ── */
+        .watermark {
+            position: fixed;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 72pt;
+            font-weight: bold;
+            color: rgba(200, 200, 200, 0.3);
+            letter-spacing: 12pt;
+            white-space: nowrap;
+            z-index: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+    {{-- Marca de agua --}}
+    @if (!empty($marcaAgua))
+        <div class="watermark">{{ $marcaAgua }}</div>
+    @endif
+
     {{-- Footer fijo --}}
     <div class="doc-footer">
         {{ $numeroDocumento }} · {{ now()->format('d/m/Y H:i') }}

@@ -6,7 +6,9 @@ use Modules\HR\Http\Controllers\ContratoController;
 use Modules\HR\Http\Controllers\PlantillaController;
 use Modules\HR\Http\Controllers\DepartamentoController;
 use Modules\ERP\Http\Controllers\CatalogoController;
+use Modules\ERP\Http\Controllers\OrdenTrabajoController;
 use Modules\ERP\Http\Controllers\TicketController;
+use Modules\ERP\Http\Controllers\RecetaController;
 use Modules\Partners\Http\Controllers\PartnerDirectoryController;
 use Modules\Partners\Http\Controllers\PartnerController;
 use Modules\Core\Services\ModuleService;
@@ -14,24 +16,24 @@ use Modules\Core\Services\ModuleService;
 
 /*
 |--------------------------------------------------------------------------
-| Rutas Públicas
+| Rutas PÃƒÂºblicas
 |--------------------------------------------------------------------------
 |
-| Estas rutas no requieren autenticación ni grupo.
-| Usan el patrón: /{locale}/...
+| Estas rutas no requieren autenticaciÃƒÂ³n ni grupo.
+| Usan el patrÃƒÂ³n: /{locale}/...
 |
 */
 
-// Ruta raíz - redirige al locale por defecto
+// Ruta raÃƒÂ­z - redirige al locale por defecto
 Route::get('/', function () {
     $locale = session('locale', config('app.locale', 'es'));
 
     return redirect("/{$locale}");
 })->name('home');
 
-// Rutas públicas con locale (login, landing, etc.)
+// Rutas pÃƒÂºblicas con locale (login, landing, etc.)
 Route::localePublic(function () {
-    // Landing page pública
+    // Landing page pÃƒÂºblica
     Route::get('/', function () {
         if (auth()->check()) {
             // Redirigir al grupo por defecto del usuario
@@ -49,14 +51,14 @@ Route::localePublic(function () {
 | Rutas Protegidas sin Grupo
 |--------------------------------------------------------------------------
 |
-| Rutas que requieren autenticación pero NO un grupo específico.
-| Útil para selección de grupo después del login.
-| Patrón: /{locale}/...
+| Rutas que requieren autenticaciÃƒÂ³n pero NO un grupo especÃƒÂ­fico.
+| ÃƒÅ¡til para selecciÃƒÂ³n de grupo despuÃƒÂ©s del login.
+| PatrÃƒÂ³n: /{locale}/...
 |
 */
 
 Route::localeAuth(function () {
-    // Selector de grupo (cuando el usuario tiene acceso a múltiples grupos)
+    // Selector de grupo (cuando el usuario tiene acceso a mÃƒÂºltiples grupos)
     Route::get('/select-group', function () {
         $groups = auth()->user()->group_companies;
 
@@ -76,26 +78,26 @@ Route::localeAuth(function () {
 | Rutas Protegidas con Grupo
 |--------------------------------------------------------------------------
 |
-| Estas rutas requieren autenticación y un grupo válido.
-| Usan el patrón: /{locale}/{group}/...
+| Estas rutas requieren autenticaciÃƒÂ³n y un grupo vÃƒÂ¡lido.
+| Usan el patrÃƒÂ³n: /{locale}/{group}/...
 | Ejemplo: /es/PE/core/users
 |
 */
 
 Route::localeGroup(function () {
-    // Página de bienvenida post-login (selector de módulos)
+    // PÃƒÂ¡gina de bienvenida post-login (selector de mÃƒÂ³dulos)
     Route::get('/welcome', function () {
         return view('welcome');
     })->name('welcome');
 
-    // Dashboard general (redirige al módulo por defecto)
+    // Dashboard general (redirige al mÃƒÂ³dulo por defecto)
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
     /*
     |----------------------------------------------------------------------
-    | Módulo Core - Administración del Sistema
+    | MÃƒÂ³dulo Core - AdministraciÃƒÂ³n del Sistema
     |----------------------------------------------------------------------
     */
     Route::prefix('core')->middleware('can:access.core')->group(function () {
@@ -106,7 +108,7 @@ Route::localeGroup(function () {
         Route::get('/settings', fn() => view('core::settings.index'))->name('core.settings.index');
         Route::get('/audit', fn() => view('core::audit.index'))->name('core.audit.index');
 
-        // Menu de Gestión de Grupos de Empresa
+        // Menu de GestiÃƒÂ³n de Grupos de Empresa
         Route::middleware('can:core.groups.view')->group(function () {
             Route::get('/group-companies', [\Modules\Core\Http\Controllers\GroupCompanyController::class, 'index'])->name('core.group_companies.index');
             Route::get('/group-companies/create', [\Modules\Core\Http\Controllers\GroupCompanyController::class, 'create'])->name('core.group_companies.create');
@@ -248,6 +250,18 @@ Route::localeGroup(function () {
         Route::post('/tickets', [TicketController::class, 'store'])->name('erp.tickets.store');
         Route::get('/tickets/patients/search', [TicketController::class, 'searchPatients'])->name('erp.tickets.patients.search');
 
+        // Recetas
+        Route::get('/recetas', [RecetaController::class, 'index'])->name('erp.recetas.index');
+        Route::get('/recetas/create', [RecetaController::class, 'create'])->name('erp.recetas.create');
+        Route::get('/recetas/{receta}/edit', [RecetaController::class, 'edit'])->name('erp.recetas.edit');
+        Route::get('/recetas/{receta}/detalle', [RecetaController::class, 'detalle'])->name('erp.recetas.detalle');
+        Route::post('/recetas', [RecetaController::class, 'store'])->name('erp.recetas.store');
+        Route::get('/recetas/patients/search', [RecetaController::class, 'buscarPacientes'])->name('erp.recetas.patients.search');
+        Route::get('/ordenes-trabajo', [OrdenTrabajoController::class, 'index'])->name('erp.work-orders.index');
+        Route::get('/ordenes-trabajo/create', [OrdenTrabajoController::class, 'create'])->name('erp.work-orders.create');
+        Route::get('/customer-care/prescriptions', [RecetaController::class, 'index'])->name('erp.customer-care.prescriptions.index');
+        Route::get('/optometry/prescriptions', [RecetaController::class, 'index'])->name('erp.optometry.prescriptions.index');
+
         // catalogos
         Route::get('/catalogos', [CatalogoController::class, 'index'])->name('erp.catalogos.index');
         Route::get('/catalogos/{catalogo}', [CatalogoController::class, 'show'])->name('erp.catalogos.show');
@@ -257,7 +271,7 @@ Route::localeGroup(function () {
 
     /*
     |----------------------------------------------------------------------
-    | Módulo HR - Recursos Humanos
+    | MÃƒÂ³dulo HR - Recursos Humanos
     |----------------------------------------------------------------------
     */
     Route::prefix('hr')->middleware('can:access.hr')->group(function () {
@@ -329,7 +343,7 @@ Route::localeGroup(function () {
 
     /*
     |----------------------------------------------------------------------
-    | Módulo CRM - Gestión de Clientes
+    | MÃƒÂ³dulo CRM - GestiÃƒÂ³n de Clientes
     |----------------------------------------------------------------------
     */
     Route::prefix('crm')->middleware('can:access.crm')->group(function () {
@@ -341,7 +355,7 @@ Route::localeGroup(function () {
 
     /*
     |----------------------------------------------------------------------
-    | Módulo FMS - Sistema Financiero
+    | MÃƒÂ³dulo FMS - Sistema Financiero
     |----------------------------------------------------------------------
     */
     Route::prefix('fms')->middleware('can:access.fms')->group(function () {
@@ -353,7 +367,7 @@ Route::localeGroup(function () {
 
     /*
     |----------------------------------------------------------------------
-    | Módulo Reports - Centro de Reportes
+    | MÃƒÂ³dulo Reports - Centro de Reportes
     |----------------------------------------------------------------------
     */
     Route::prefix('reports')->middleware('can:access.reports')->group(function () {

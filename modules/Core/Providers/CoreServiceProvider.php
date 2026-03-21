@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Http\Kernel;
 use Livewire\Livewire;
 use Modules\Core\Contracts\PatientDirectoryContract;
+use Modules\Core\Services\DocumentLookupService;
 use Modules\Core\Services\ModuleService;
 use Modules\Core\Services\NullPatientDirectoryService;
 use Modules\Core\Http\Middleware\DetectActiveModule;
@@ -45,6 +46,10 @@ class CoreServiceProvider extends ServiceProvider
 
         // Alias corto para el servicio
         $this->app->alias(ModuleService::class, 'modules');
+
+        // Servicio de consulta de documentos (DNI/RUC) via API
+        $this->app->singleton(DocumentLookupService::class);
+        $this->app->alias(DocumentLookupService::class, 'document-lookup');
 
         // Implementacion por defecto (sin datos) para integraciones cross-modulo.
         $this->app->singleton(PatientDirectoryContract::class, function () {

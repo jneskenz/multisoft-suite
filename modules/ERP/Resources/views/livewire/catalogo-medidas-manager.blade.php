@@ -328,23 +328,48 @@
                                         @forelse ($combinaciones as $row)
                                             <tr>
                                                 <td>
-                                                    <button type="button" class="btn btn-sm btn-label-danger"
-                                                        wire:click="eliminarCombinacion({{ $row['id'] }})"
-                                                        onclick="return confirm('{{ __('Desea eliminar este registro?') }}')">
-                                                        <i class="ti tabler-trash"></i>
-                                                    </button>
+                                                    <div class="d-flex justify-content-start align-items-center gap-1">
+                                                        @if ((int) $row['estado_matriz'] === 1)
+                                                            <button type="button" class="btn btn-sm btn-icon btn-label-info me-1"
+                                                                wire:click="verMatriz({{ $row['id'] }})"
+                                                                title="{{ __('Ver matriz') }}">
+                                                                <i class="ti tabler-table"></i>
+                                                            </button>
+                                                        @else
+                                                            <button type="button" class="btn btn-sm btn-icon btn-label-primary me-1"
+                                                                wire:click="generarMatriz({{ $row['id'] }})"
+                                                                title="{{ __('Generar matriz') }}">
+                                                                <i class="ti tabler-grid-dots"></i>
+                                                            </button>
+                                                        @endif
+                                                        <button type="button" class="btn btn-sm btn-icon btn-label-danger"
+                                                            wire:click="eliminarCombinacion({{ $row['id'] }})"
+                                                            onclick="return confirm('{{ __('Desea eliminar este registro?') }}')">
+                                                            <i class="ti tabler-trash"></i>
+                                                        </button>
+                                                    </div>                                                    
                                                 </td>
                                                 <td>
-                                                    <span class="badge {{ (int) $row['estado'] === 1 ? 'bg-label-success' : 'bg-label-secondary' }}">
-                                                        {{ (int) $row['estado'] === 1 ? __('Activo') : __('Inactivo') }}
-                                                    </span>
+                                                    <div class="d-flex flex-column align-items-center gap-1">
+                                                        <span class="badge {{ (int) $row['estado'] === 1 ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                                            {{ (int) $row['estado'] === 1 ? __('Activo') : __('Inactivo') }}
+                                                        </span>
+                                                        <span class="badge {{ (int) $row['estado_matriz'] === 1 ? 'bg-label-info' : 'bg-label-warning' }}">
+                                                            {{ (int) $row['estado_matriz'] === 1 ? __('Generado') : __('Pendiente') }}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td>{{ $row['serie_visual'] }}</td>
                                                 <td>{{ $row['subserie_visual'] }}</td>
                                                 <td>{{ $row['medida_esferica_desde'] }} | {{ $row['medida_esferica_hasta'] }}</td>
                                                 <td>{{ $row['medida_cilindrica_desde'] }} | {{ $row['medida_cilindrica_hasta'] }}</td>
                                                 <td>{{ $row['adicion_desde'] }} | {{ $row['adicion_hasta'] }}</td>
-                                                <td>{{ $row['preciobase'] }}</td>
+                                                <td>
+                                                    <div>{{ $row['preciobase'] }}</div>
+                                                    <small class="text-muted">
+                                                        {{ __('Matriz') }}: {{ $row['matrices_generadas'] }}
+                                                    </small>
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
@@ -373,4 +398,112 @@
             </div>
         </div>
     @endif
+
+    @if($showMatrizModal)
+        @php($resumenMatriz = $this->matrizResumen)
+        @php($adicionesMatriz = $this->matrizAdiciones)
+        @php($vistaMatriz = $this->matrizVista)
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.6); z-index: 1080;">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title d-flex align-items-center gap-2">
+                            <i class="ti tabler-table"></i>
+                            <span>{{ __('Matriz generada') }}</span>
+                        </h5>
+                        <button type="button" class="btn-close border" wire:click="cerrarModalMatriz"
+                            aria-label="{{ __('Cerrar') }}"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info py-2">
+                            <div class="row g-2 small">
+                                <div class="col-md-3"><strong>{{ __('Combinacion') }}:</strong> {{ $resumenMatriz['id'] ?? '-' }}</div>
+                                <div class="col-md-3"><strong>{{ __('Serie visual') }}:</strong> {{ $resumenMatriz['serie_visual'] ?? '-' }}</div>
+                                <div class="col-md-3"><strong>{{ __('Subserie visual') }}:</strong> {{ $resumenMatriz['subserie_visual'] ?? '-' }}</div>
+                                <div class="col-md-3"><strong>{{ __('Total celdas') }}:</strong> {{ $vistaMatriz['total_celdas'] ?? 0 }}</div>
+                                <div class="col-md-4"><strong>{{ __('Esferica') }}:</strong> {{ $resumenMatriz['medida_esferica'] ?? '-' }}</div>
+                                <div class="col-md-4"><strong>{{ __('Cilindrica') }}:</strong> {{ $resumenMatriz['medida_cilindrica'] ?? '-' }}</div>
+                                <div class="col-md-4"><strong>{{ __('Adicion') }}:</strong> {{ $resumenMatriz['adicion'] ?? '-' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label mb-1">{{ __('Adicion') }}</label>
+                                <select class="form-select form-select-sm" wire:model.live="matrizAdicionSeleccionada">
+                                    <option value="">{{ __('Todas') }}</option>
+                                    @foreach ($adicionesMatriz as $adicion)
+                                        <option value="{{ $adicion['id'] }}">
+                                            {{ $this->etiquetaOpcion($adicion) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered align-middle text-center">
+                                <thead>
+                                    <tr>
+                                        <th class="p-1">{{ __('ESF/CIL') }}</th>
+                                        @forelse ($vistaMatriz['columnas'] as $columna)
+                                            <th class="p-1">{{ $columna['label'] }}</th>
+                                        @empty
+                                            <th class="p-1" >{{ __('Sin columnas') }}</th>
+                                        @endforelse
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($vistaMatriz['filas'] as $fila)
+                                        <tr>
+                                            <th class="p-1 bg-label-secondary">{{ $fila['label'] }}</th>
+                                            @foreach ($vistaMatriz['columnas'] as $columna)
+                                                @php($celda = $vistaMatriz['celdas'][$fila['id']][$columna['id']] ?? null)
+                                                <td class="p-1 {{ $celda ? 'bg-label-success' : 'bg-label-danger' }}">
+                                                    @if ($celda)
+                                                        <div class="p-1 fw-semibold">{{ $celda['stock_total'] }}</div>
+                                                        {{-- <small class="text-muted">{{ $celda['codigo_matriz'] !== '' ? $celda['codigo_matriz'] : '-' }}</small> --}}
+                                                    @else
+                                                        <span>0</span>
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="{{ max(2, count($vistaMatriz['columnas']) + 1) }}" class="text-center text-muted py-4">
+                                                {{ __('No hay datos de matriz para esta combinacion.') }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" wire:click="cerrarModalMatriz">
+                            {{ __('Cerrar') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @script
+    <script>
+        $wire.on('erp-matriz-generada', ({ title, message }) => {
+            if (typeof Swal === 'undefined') {
+                return;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: title || 'Matriz generada',
+                text: message || 'La matriz se genero correctamente.',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+    </script>
+    @endscript
 </div>

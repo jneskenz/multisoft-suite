@@ -35,7 +35,7 @@ class DepartamentoManager extends Component
     public ?int $padre_id = null;
     public ?int $jefe_id = null;
     public string $codigo = '';
-    public string $name = '';
+    public string $nombre = '';
     public string $descripcion = '';
     public int $estado = Departamento::ESTADO_ACTIVO;
 
@@ -45,7 +45,7 @@ class DepartamentoManager extends Component
 
     protected array $allowedSortFields = [
         'id',
-        'name',
+        'nombre',
         'codigo',
         'estado',
         'created_at',
@@ -55,10 +55,10 @@ class DepartamentoManager extends Component
     public function departamentos()
     {
         $query = Departamento::query()
-            ->with(['tipoDepartamento:id,name', 'padre:id,name', 'jefe:id,nombre'])
+            ->with(['tipoDepartamento:id,nombre', 'padre:id,nombre', 'jefe:id,nombre'])
             ->when($this->search, function ($q) {
                 $q->where(function ($q) {
-                    $q->where('name', 'like', "%{$this->search}%")
+                    $q->where('nombre', 'like', "%{$this->search}%")
                         ->orWhere('codigo', 'like', "%{$this->search}%")
                         ->orWhere('descripcion', 'like', "%{$this->search}%");
                 });
@@ -83,8 +83,8 @@ class DepartamentoManager extends Component
     public function tiposDepartamento()
     {
         return TipoDepartamento::query()
-            ->orderBy('name')
-            ->get(['id', 'name']);
+            ->orderBy('nombre')
+            ->get(['id', 'nombre']);
     }
 
     #[Computed]
@@ -92,8 +92,8 @@ class DepartamentoManager extends Component
     {
         return Departamento::query()
             ->when($this->departamentoId, fn ($q) => $q->where('id', '!=', $this->departamentoId))
-            ->orderBy('name')
-            ->get(['id', 'name']);
+            ->orderBy('nombre')
+            ->get(['id', 'nombre']);
     }
 
     #[Computed]
@@ -107,7 +107,7 @@ class DepartamentoManager extends Component
     protected function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100'],
+            'nombre' => ['required', 'string', 'max:100'],
             'codigo' => [
                 'nullable',
                 'string',
@@ -125,7 +125,7 @@ class DepartamentoManager extends Component
     protected function messages(): array
     {
         return [
-            'name.required' => 'El nombre es obligatorio.',
+            'nombre.required' => 'El nombre es obligatorio.',
             'codigo.unique' => 'Este codigo ya existe.',
             'tipo_departamento_id.exists' => 'El tipo seleccionado no es valido.',
             'padre_id.exists' => 'El departamento padre seleccionado no es valido.',
@@ -175,7 +175,7 @@ class DepartamentoManager extends Component
         $this->padre_id = $departamento->padre_id;
         $this->jefe_id = $departamento->jefe_id;
         $this->codigo = $departamento->codigo ?? '';
-        $this->name = $departamento->name;
+        $this->nombre = $departamento->nombre;
         $this->descripcion = $departamento->descripcion ?? '';
         $this->estado = (int) $departamento->estado;
         $this->isEditing = true;
@@ -191,7 +191,7 @@ class DepartamentoManager extends Component
             'padre_id' => $this->padre_id,
             'jefe_id' => $this->jefe_id,
             'codigo' => $this->codigo ?: null,
-            'name' => $this->name,
+            'nombre' => $this->nombre,
             'descripcion' => $this->descripcion ?: null,
             'estado' => $this->estado,
         ];
@@ -307,7 +307,7 @@ class DepartamentoManager extends Component
             'padre_id',
             'jefe_id',
             'codigo',
-            'name',
+            'nombre',
             'descripcion',
             'estado',
         ]);

@@ -216,6 +216,7 @@ class TicketManager extends Component
                 'paciente:id,nombre_completo,nombres,apellido_paterno,apellido_materno,tipo_documento,numero_documento',
                 'creadoPor:id,name',
             ])
+            ->withCount('recetas')
             ->tenant($tenantId)
             ->activos();
 

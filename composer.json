@@ -48,7 +48,8 @@
         "files": [
             "app/Helpers/LanguageHelpers.php",
             "app/Helpers/ModuleHelpers.php",
-            "app/Helpers/GroupHelpers.php"
+            "app/Helpers/GroupHelpers.php",
+            "app/Helpers/DocumentLookupHelpers.php"
         ]
     },
     "autoload-dev": {

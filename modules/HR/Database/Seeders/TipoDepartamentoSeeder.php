@@ -12,31 +12,31 @@ class TipoDepartamentoSeeder extends Seeder
         $tipos = [
             [
                 'codigo' => 'ADM',
-                'name' => 'Administrativo',
+                'nombre' => 'Administrativo',
                 'descripcion' => 'Departamentos de gestion administrativa',
                 'estado' => 1,
             ],
             [
                 'codigo' => 'OPE',
-                'name' => 'Operativo',
+                'nombre' => 'Operativo',
                 'descripcion' => 'Departamentos orientados a la operacion',
                 'estado' => 1,
             ],
             [
                 'codigo' => 'COM',
-                'name' => 'Comercial',
+                'nombre' => 'Comercial',
                 'descripcion' => 'Departamentos de ventas y marketing',
                 'estado' => 1,
             ],
             [
                 'codigo' => 'FIN',
-                'name' => 'Financiero',
+                'nombre' => 'Financiero',
                 'descripcion' => 'Departamentos contables y de finanzas',
                 'estado' => 1,
             ],
             [
                 'codigo' => 'SOP',
-                'name' => 'Soporte',
+                'nombre' => 'Soporte',
                 'descripcion' => 'Departamentos de soporte interno y externo',
                 'estado' => 1,
             ],

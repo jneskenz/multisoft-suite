@@ -67,10 +67,10 @@
                         <tr>
                             <th class="text-center" style="width: 130px;">{{ __('Acciones') }}</th>
                             <th style="width: 120px;">{{ __('Estado') }}</th>
-                            <th wire:click="sortBy('name')" class="cursor-pointer" style="min-width: 220px;">
+                            <th wire:click="sortBy('nombre')" class="cursor-pointer" style="min-width: 220px;">
                                 <div class="d-flex align-items-center">
                                     {{ __('Departamento') }}
-                                    @if ($sortField === 'name')
+                                    @if ($sortField === 'nombre')
                                         <i class="ti tabler-chevron-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                     @endif
                                 </div>
@@ -196,7 +196,7 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <h6 class="mb-0">{{ $departamento->name }}</h6>
+                                        <h6 class="mb-0">{{ $departamento->nombre }}</h6>
                                         @if($departamento->descripcion)
                                             <small class="text-muted">{{ \Illuminate\Support\Str::limit($departamento->descripcion, 50) }}</small>
                                         @endif
@@ -210,10 +210,10 @@
                                     @endif
                                 </td>
                                 <td>
-                                    {{ $departamento->tipoDepartamento?->name ?? '-' }}
+                                    {{ $departamento->tipoDepartamento?->nombre ?? '-' }}
                                 </td>
                                 <td>
-                                    {{ $departamento->padre?->name ?? '-' }}
+                                    {{ $departamento->padre?->nombre ?? '-' }}
                                 </td>
                                 <td>
                                     {{ $departamento->jefe?->nombre ?? '-' }}
@@ -277,18 +277,18 @@
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-7">
-                                    <label class="form-label" for="departamento_name">
+                                    <label class="form-label" for="departamento_nombre">
                                         {{ __('Nombre') }} <span class="text-danger">*</span>
                                     </label>
                                     <input
                                         type="text"
-                                        id="departamento_name"
-                                        wire:model="name"
-                                        class="form-control @error('name') is-invalid @enderror"
+                                        id="departamento_nombre"
+                                        wire:model="nombre"
+                                        class="form-control @error('nombre') is-invalid @enderror"
                                         placeholder="{{ __('Nombre del departamento') }}"
                                         autofocus
                                     >
-                                    @error('name')
+                                    @error('nombre')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -316,7 +316,7 @@
                                     >
                                         <option value="">{{ __('Seleccionar...') }}</option>
                                         @foreach ($this->tiposDepartamento as $tipo)
-                                            <option value="{{ $tipo->id }}">{{ $tipo->name }}</option>
+                                            <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                                         @endforeach
                                     </select>
                                     @error('tipo_departamento_id')
@@ -333,7 +333,7 @@
                                     >
                                         <option value="">{{ __('Sin padre') }}</option>
                                         @foreach ($this->padresDisponibles as $padre)
-                                            <option value="{{ $padre->id }}">{{ $padre->name }}</option>
+                                            <option value="{{ $padre->id }}">{{ $padre->nombre }}</option>
                                         @endforeach
                                     </select>
                                     @error('padre_id')

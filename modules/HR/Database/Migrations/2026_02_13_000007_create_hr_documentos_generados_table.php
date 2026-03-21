@@ -48,7 +48,7 @@ return new class extends Migration
             $table->enum('estado', ['1', '0'])->default('1')->comment('1: activo, 0: inactivo');
             $table->enum('estado_documento', ['0', '1', '2', '3', '4', '5', '6'])
                 ->default('0')
-                ->comment('0:borrador, 1:por_firmar, 2:vigente, 3:por_vencer, 4:vencido, 5:anulado, 6:resuelto');
+                ->comment('0:borrador, 1:por_firmar, 2:firmado/vigente, 3:por_vencer, 4:vencido, 5:anulado, 6:resuelto');
 
             $table->date('fecha_vigencia_desde')->nullable();
             $table->date('fecha_vigencia_hasta')->nullable();

@@ -89,7 +89,7 @@
 
             {{-- ═══ TABLA ═══ --}}
             <div class="table-responsive">
-                <table class="table table-hover table-sm align-middle">
+                <table class="table table-hover table-xs align-middle">
                     <thead class="table-light">
                         <tr>
                             <th class="text-center" style="width: 130px;">{{ __('Acciones') }}</th>
@@ -103,6 +103,7 @@
                                 </div>
                             </th>
                             <th style="min-width: 200px;">{{ __('Empleado') }}</th>
+                            <th style="min-width: 150px;">{{ __('Cargo') }}</th>
                             <th style="min-width: 150px;">{{ __('Tipo') }}</th>
                             <th wire:click="sortBy('fecha_inicio')" class="cursor-pointer" style="width: 120px;">
                                 <div class="d-flex align-items-center">
@@ -131,105 +132,101 @@
                                 {{-- Acciones --}}
                                 <td>
                                     <div class="d-flex justify-content-start align-items-center gap-1">
-                                        <button
-                                            class="btn btn-sm rounded-pill btn-icon btn-label-secondary waves-effect me-1"
-                                            data-bs-toggle="tooltip"
-                                            title="Nro de registro: {{ $contrato->id }}"
-                                        >
-                                            {{ $contrato->id }}
-                                        </button>
+                                        @if (!$showTrashedContratos)
+                                            @php $ec = $contrato->estado_contrato->value; @endphp
 
-                                        <button
-                                            wire:click="edit({{ $contrato->id }})"
-                                            class="btn btn-sm btn-icon btn-label-primary"
-                                            data-bs-toggle="tooltip"
-                                            title="{{ __('Editar contrato') }}"
-                                        >
-                                            <i class="ti tabler-edit icon-18px"></i>
-                                        </button>
-
-                                        <div class="dropdown">
+                                            {{-- Editar (solo BORRADOR) --}}
                                             <button
-                                                class="btn btn-sm btn-icon border btn-text-secondary rounded dropdown-toggle hide-arrow"
-                                                data-bs-toggle="dropdown"
+                                                wire:click="edit({{ $contrato->id }})"
+                                                class="btn btn-sm btn-icon btn-label-primary"
+                                                data-bs-toggle="tooltip"
+                                                title="{{ __('Editar contrato') }}"
+                                                @if($ec !== 0) disabled @endif
                                             >
-                                                <i class="ti tabler-dots-vertical"></i>
+                                                <i class="ti tabler-edit icon-18px"></i>
                                             </button>
-                                            <ul class="dropdown-menu">
-                                                @if (!$showTrashedContratos)
-                                                    {{-- Generar documento --}}
-                                                    @if ($contrato->tipo_contrato_id)
-                                                        <li>
-                                                            <a class="dropdown-item d-flex p-2 justify-content-start btn btn-label-info align-items-center"
-                                                               wire:click="openGenerarDocModal({{ $contrato->id }})">
-                                                                <button class="btn btn-sm btn-icon btn-label-info me-2">
-                                                                    <i class="ti tabler-file-plus icon-18px"></i>
-                                                                </button>
-                                                                <span class="lh-1">{{ __('Generar documento') }}</span>
-                                                            </a>
-                                                        </li>
-                                                    @endif
-                                                    {{-- Ver documentos generados --}}
-                                                    @if ($contrato->documentosGenerados && $contrato->documentosGenerados->count() > 0)
-                                                        <li>
-                                                            <a class="dropdown-item d-flex p-2 justify-content-start btn btn-label-success align-items-center"
-                                                               href="{{ group_route('hr.contratos.ver-documento', ['documento' => $contrato->documentosGenerados->last()->id]) }}"
-                                                               target="_blank">
-                                                                <button class="btn btn-sm btn-icon btn-label-success me-2">
-                                                                    <i class="ti tabler-file-text icon-18px"></i>
-                                                                </button>
-                                                                <span class="lh-1">{{ __('Ver documento') }}</span>
-                                                            </a>
-                                                        </li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                    @endif
-                                                    @if ($contrato->is_vigente)
-                                                        <li>
-                                                            <a class="dropdown-item d-flex p-2 justify-content-start btn btn-label-dark align-items-center"
-                                                               wire:click="confirmTerminar({{ $contrato->id }})">
-                                                                <button class="btn btn-sm btn-icon btn-label-dark me-2">
-                                                                    <i class="ti tabler-flag icon-18px"></i>
-                                                                </button>
-                                                                <span class="lh-1">{{ __('Terminar contrato') }}</span>
-                                                            </a>
-                                                        </li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                    @endif
-                                                    <li>
-                                                        <a class="dropdown-item d-flex p-2 justify-content-start btn btn-label-danger align-items-center"
-                                                           wire:click="confirmDelete({{ $contrato->id }})">
-                                                            <button class="btn btn-sm btn-icon btn-label-danger me-2">
-                                                                <i class="ti tabler-trash icon-18px"></i>
-                                                            </button>
-                                                            <span class="lh-1">{{ __('Eliminar') }}</span>
-                                                        </a>
-                                                    </li>
-                                                @else
-                                                    <li>
-                                                        <a class="dropdown-item d-flex p-2 justify-content-start btn btn-label-success align-items-center"
-                                                           wire:click="confirmRestore({{ $contrato->id }})">
-                                                            <button class="btn btn-sm btn-icon btn-label-success me-2">
-                                                                <i class="ti tabler-refresh icon-18px"></i>
-                                                            </button>
-                                                            <span class="lh-1">{{ __('Restaurar') }}</span>
-                                                        </a>
-                                                    </li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li>
-                                                        <a class="dropdown-item d-flex p-2 justify-content-start btn btn-label-dark align-items-center"
-                                                           wire:click="confirmForceDelete({{ $contrato->id }})">
-                                                            <button class="btn btn-sm btn-icon btn-label-dark me-2">
-                                                                <i class="ti tabler-trash-x icon-18px"></i>
-                                                            </button>
-                                                            <span class="lh-1">{{ __('Eliminar permanente') }}</span>
-                                                        </a>
-                                                    </li>
-                                                @endif
-                                            </ul>
-                                        </div>
+
+                                            {{-- Previsualizar / Visualizar documento --}}
+                                            @if ($contrato->documentosGenerados->count() > 0)
+                                                <a
+                                                    href="{{ group_route('hr.contratos.ver-documento', ['documento' => $contrato->documentosGenerados->last()->id]) }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-icon btn-label-info"
+                                                    data-bs-toggle="tooltip"
+                                                    title="{{ $ec === 0 ? __('Previsualizar documento') : __('Visualizar documento') }}"
+                                                >
+                                                    <i class="ti tabler-file-text icon-18px"></i>
+                                                </a>
+                                            @endif
+
+                                            @if ($ec === 0)
+                                                {{-- BORRADOR: Confirmar + Eliminar --}}
+                                                <button
+                                                    wire:click="confirmarContrato({{ $contrato->id }})"
+                                                    class="btn btn-sm btn-icon btn-label-success"
+                                                    data-bs-toggle="tooltip"
+                                                    title="{{ __('Confirmar / Enviar a firma') }}"
+                                                >
+                                                    <i class="ti tabler-send icon-18px"></i>
+                                                </button>
+                                                <button
+                                                    wire:click="confirmDelete({{ $contrato->id }})"
+                                                    class="btn btn-sm btn-icon btn-label-danger"
+                                                    data-bs-toggle="tooltip"
+                                                    title="{{ __('Eliminar') }}"
+                                                >
+                                                    <i class="ti tabler-trash icon-18px"></i>
+                                                </button>
+                                            @elseif ($ec === 1)
+                                                {{-- REVISION: Firmar + Rechazar --}}
+                                                <button
+                                                    wire:click="firmarContrato({{ $contrato->id }})"
+                                                    class="btn btn-sm btn-icon btn-label-success"
+                                                    data-bs-toggle="tooltip"
+                                                    title="{{ __('Firmar contrato') }}"
+                                                >
+                                                    <i class="ti tabler-signature icon-18px"></i>
+                                                </button>
+                                                <button
+                                                    wire:click="rechazarContrato({{ $contrato->id }})"
+                                                    class="btn btn-sm btn-icon btn-label-warning"
+                                                    data-bs-toggle="tooltip"
+                                                    title="{{ __('Rechazar') }}"
+                                                >
+                                                    <i class="ti tabler-x icon-18px"></i>
+                                                </button>
+                                            @elseif ($ec === 2)
+                                                {{-- FIRMADO: Terminar --}}
+                                                <button
+                                                    wire:click="confirmTerminar({{ $contrato->id }})"
+                                                    class="btn btn-sm btn-icon btn-label-dark"
+                                                    data-bs-toggle="tooltip"
+                                                    title="{{ __('Terminar contrato') }}"
+                                                >
+                                                    <i class="ti tabler-flag icon-18px"></i>
+                                                </button>
+                                            @endif
+                                        @else
+                                            {{-- Papelera: Restaurar + Eliminar permanente --}}
+                                            <button
+                                                wire:click="confirmRestore({{ $contrato->id }})"
+                                                class="btn btn-sm btn-icon btn-label-success"
+                                                data-bs-toggle="tooltip"
+                                                title="{{ __('Restaurar') }}"
+                                            >
+                                                <i class="ti tabler-refresh icon-18px"></i>
+                                            </button>
+                                            <button
+                                                wire:click="confirmForceDelete({{ $contrato->id }})"
+                                                class="btn btn-sm btn-icon btn-label-danger"
+                                                data-bs-toggle="tooltip"
+                                                title="{{ __('Eliminar permanente') }}"
+                                            >
+                                                <i class="ti tabler-trash-x icon-18px"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
-
                                 {{-- Estado --}}
                                 <td>
                                     @if ($contrato->is_por_vencer)
@@ -253,19 +250,26 @@
                                     <div>
                                         <h6 class="mb-0">{{ $contrato->empleado?->nombre }}</h6>
                                         @if($contrato->empleado?->codigo_empleado)
-                                            <small class="text-muted">{{ $contrato->empleado->codigo_empleado }}</small>
+                                            <small class="text-muted">{{ $contrato->empleado->nombres }} {{ $contrato->empleado->apellidos }}</small>
                                         @endif
                                         @if($contrato->empleado?->company)
-                                            <small class="text-muted"> · {{ $contrato->empleado->company->name }}</small>
+                                            <br><small class="text-muted">{{ $contrato->empleado->company->name }}</small>
                                         @endif
                                     </div>
                                 </td>
 
+                                
+
+                                {{-- Cargo --}}
+                                <td>
+                                    {{ $contrato->cargo?->nombre }}
+                                </td>
+
                                 {{-- Tipo --}}
                                 <td>
-                                    <span>{{ $contrato->tipoContrato?->nombre ?? '-' }}</span>
+                                    <span class="fw-semi-bold">{{ $contrato->tipoContrato?->nombre ?? '-' }}</span>
                                     @if ($contrato->modalidad)
-                                        <br><small class="text-muted">{{ $contrato->modalidad->nombre }}</small>
+                                        <br><i class="text-muted">({{ $contrato->modalidad->nombre }})</i>
                                     @endif
                                 </td>
 
@@ -332,7 +336,7 @@
     {{-- ═══ MODAL CREAR / EDITAR ═══ --}}
     @if ($showModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
@@ -345,19 +349,37 @@
                     <form wire:submit="save">
                         <div class="modal-body">
                             <div class="row">
+                                {{-- Número de contrato --}}
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" for="ct_numero">
+                                        {{ __('Nro. Contrato') }} <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text"><i class="ti tabler-hash"></i></span>
+                                        <input type="text" id="ct_numero" wire:model="numero_contrato"
+                                            class="form-control form-control-sm @error('numero_contrato') is-invalid @enderror"
+                                            readonly="readonly"
+                                            placeholder="CTR-2026-0001">
+                                    </div>
+                                    @error('numero_contrato')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
                                 {{-- Empleado --}}
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-9 mb-3">
                                     <label class="form-label" for="ct_empleado_id">
                                         {{ __('Empleado') }} <span class="text-danger">*</span>
                                     </label>
                                     <select id="ct_empleado_id" wire:model="empleado_id"
-                                        class="form-select @error('empleado_id') is-invalid @enderror"
+                                        class="form-select form-select-sm @error('empleado_id') is-invalid @enderror"
                                         @if($isEditing) disabled @endif>
                                         <option value="">{{ __('Seleccionar empleado...') }}</option>
                                         @foreach($this->empleados as $emp)
-                                            <option value="{{ $emp->id }}">
-                                                {{ $emp->nombre }}
+                                            <option value="{{ $emp->id }}"
+                                                @if($emp->tiene_contrato) disabled @endif>
+                                                {{ $emp->nombres }} {{ $emp->apellidos }}
                                                 @if($emp->codigo_empleado) ({{ $emp->codigo_empleado }}) @endif
+                                                @if($emp->tiene_contrato) — {{ __('Ya tiene contrato registrado') }} @endif
                                             </option>
                                         @endforeach
                                     </select>
@@ -366,29 +388,13 @@
                                     @enderror
                                 </div>
 
-                                {{-- Número de contrato --}}
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="ct_numero">
-                                        {{ __('Nro. Contrato') }} <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text"><i class="ti tabler-hash"></i></span>
-                                        <input type="text" id="ct_numero" wire:model="numero_contrato"
-                                            class="form-control @error('numero_contrato') is-invalid @enderror"
-                                            placeholder="CTR-2026-0001">
-                                    </div>
-                                    @error('numero_contrato')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
                                 {{-- Tipo de contrato --}}
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <label class="form-label" for="ct_tipo">
                                         {{ __('Tipo de contrato') }} <span class="text-danger">*</span>
                                     </label>
                                     <select id="ct_tipo" wire:model.live="tipo_contrato_id"
-                                        class="form-select @error('tipo_contrato_id') is-invalid @enderror">
+                                        class="form-select form-select-sm @error('tipo_contrato_id') is-invalid @enderror">
                                         <option value="">{{ __('Seleccionar tipo...') }}</option>
                                         @foreach ($this->tiposContrato as $tipo)
                                             <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
@@ -400,10 +406,15 @@
                                 </div>
 
                                 {{-- Modalidad / Categoría --}}
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="ct_modalidad">{{ __('Modalidad') }}</label>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" for="ct_modalidad">
+                                        {{ __('Modalidad') }}
+                                        @if(!$tipo_contrato_id)
+                                            <i class="ti tabler-help-octagon text-danger" title="{{ __('Seleccione un tipo de contrato primero') }}"></i>
+                                        @endif
+                                    </label>
                                     <select id="ct_modalidad" wire:model="modalidad_id"
-                                        class="form-select @error('modalidad_id') is-invalid @enderror"
+                                        class="form-select form-select-sm @error('modalidad_id') is-invalid @enderror"
                                         @if(!$tipo_contrato_id) disabled @endif>
                                         <option value="">{{ __('Sin modalidad específica') }}</option>
                                         @foreach ($this->modalidades as $mod)
@@ -413,47 +424,32 @@
                                     @error('modalidad_id')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
-                                    @if(!$tipo_contrato_id)
-                                        <small class="text-muted">{{ __('Seleccione un tipo de contrato primero') }}</small>
-                                    @endif
                                 </div>
 
-                                {{-- Fecha inicio --}}
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="ct_fecha_inicio">
-                                        {{ __('Fecha de inicio') }} <span class="text-danger">*</span>
+                                {{-- Cargo --}}
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" for="ct_cargo_id">
+                                        {{ __('Cargo') }} <span class="text-danger">*</span>
                                     </label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text"><i class="ti tabler-calendar"></i></span>
-                                        <input type="date" id="ct_fecha_inicio" wire:model="fecha_inicio"
-                                            class="form-control @error('fecha_inicio') is-invalid @enderror">
-                                    </div>
-                                    @error('fecha_inicio')
+                                    <select id="ct_cargo_id" wire:model="cargo_id"
+                                        class="form-select form-select-sm @error('cargo_id') is-invalid @enderror">
+                                        <option value="">{{ __('Seleccione un cargo...') }}</option>
+                                        @foreach ($this->cargos as $cargo)
+                                            <option value="{{ $cargo->id }}">{{ $cargo->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('cargo_id')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
-                                </div>
-
-                                {{-- Fecha fin --}}
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="ct_fecha_fin">{{ __('Fecha de fin') }}</label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text"><i class="ti tabler-calendar-off"></i></span>
-                                        <input type="date" id="ct_fecha_fin" wire:model="fecha_fin"
-                                            class="form-control @error('fecha_fin') is-invalid @enderror">
-                                    </div>
-                                    @error('fecha_fin')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                    <small class="text-muted">{{ __('Dejar vacío para contratos indefinidos') }}</small>
                                 </div>
 
                                 {{-- Salario --}}
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <label class="form-label" for="ct_salario">{{ __('Salario base') }}</label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text">S/</span>
                                         <input type="number" id="ct_salario" wire:model="salario_base"
-                                            class="form-control @error('salario_base') is-invalid @enderror"
+                                            class="form-control form-control-sm @error('salario_base') is-invalid @enderror"
                                             step="0.01" min="0" placeholder="0.00">
                                     </div>
                                     @error('salario_base')
@@ -461,13 +457,47 @@
                                     @enderror
                                 </div>
 
+                                {{-- Fecha inicio --}}
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" for="ct_fecha_inicio">
+                                        {{ __('Fecha de inicio') }} <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text"><i class="ti tabler-calendar"></i></span>
+                                        <input type="date" id="ct_fecha_inicio" wire:model="fecha_inicio"
+                                            class="form-control form-control-sm @error('fecha_inicio') is-invalid @enderror">
+                                    </div>
+                                    @error('fecha_inicio')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Fecha fin --}}
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" for="ct_fecha_fin">
+                                        {{ __('Fecha de fin') }}
+                                        @if($tipo_contrato_id == 1)
+                                            <i class="ti tabler-help-octagon text-danger" title="{{ __('Dejar vacío para contratos indefinidos') }}"></i>
+                                        @endif
+                                    </label>
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text"><i class="ti tabler-calendar-off"></i></span>
+                                        <input type="date" id="ct_fecha_fin" wire:model="fecha_fin"
+                                            class="form-control form-control-sm @error('fecha_fin') is-invalid @enderror">
+                                    </div>
+                                    @error('fecha_fin')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                    {{-- <small class="text-muted">{{ __('Dejar vacío para contratos indefinidos') }}</small> --}}
+                                </div>
+
                                 {{-- Horas semanales --}}
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <label class="form-label" for="ct_horas">{{ __('Horas semanales') }}</label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="ti tabler-clock"></i></span>
                                         <input type="number" id="ct_horas" wire:model="horas_semanales"
-                                            class="form-control @error('horas_semanales') is-invalid @enderror"
+                                            class="form-control form-control-sm @error('horas_semanales') is-invalid @enderror"
                                             step="0.5" min="0" max="168" placeholder="48">
                                     </div>
                                     @error('horas_semanales')
@@ -475,36 +505,22 @@
                                     @enderror
                                 </div>
 
-                                {{-- Estado del contrato --}}
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label" for="ct_estado_contrato">{{ __('Estado') }}</label>
-                                    <select id="ct_estado_contrato" wire:model="estado_contrato"
-                                        class="form-select @error('estado_contrato') is-invalid @enderror">
-                                        @foreach (\Modules\HR\Enums\EstadoContrato::options() as $opt)
-                                            <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('estado_contrato')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
                                 {{-- Descripción horario --}}
-                                <div class="col-12 mb-3">
+                                <div class="col-6 mb-3">
                                     <label class="form-label" for="ct_horario">{{ __('Descripción de horario') }}</label>
-                                    <input type="text" id="ct_horario" wire:model="descripcion_horario"
-                                        class="form-control @error('descripcion_horario') is-invalid @enderror"
-                                        placeholder="{{ __('Ej: Lunes a Viernes 8:00 - 17:00') }}">
+                                    <textarea id="ct_horario" wire:model="descripcion_horario" rows="3" 
+                                        class="form-control form-control-sm @error('descripcion_horario') is-invalid @enderror"
+                                        placeholder="{{ __('Ej: Lunes a Viernes 8:00 - 17:00') }}"></textarea>
                                     @error('descripcion_horario')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 
                                 {{-- Notas --}}
-                                <div class="col-12 mb-3">
+                                <div class="col-6 mb-3">
                                     <label class="form-label" for="ct_notas">{{ __('Notas') }}</label>
-                                    <textarea id="ct_notas" wire:model="notas" rows="2"
-                                        class="form-control @error('notas') is-invalid @enderror"
+                                    <textarea id="ct_notas" wire:model="notas" rows="3"
+                                        class="form-control form-control-sm @error('notas') is-invalid @enderror"
                                         placeholder="{{ __('Observaciones adicionales...') }}"></textarea>
                                     @error('notas')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>

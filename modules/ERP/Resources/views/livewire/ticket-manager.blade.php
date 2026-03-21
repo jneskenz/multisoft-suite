@@ -224,7 +224,14 @@
                                 </td>
                                 <td>
                                     <div class="fw-medium">{{ $ticket->ticket_numero }}</div>
-                                    <small class="text-muted">{{ strtoupper((string) ($ticket->canal ?? 'mostrador')) }}</small>
+                                    <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
+                                        <small class="text-muted">{{ strtoupper((string) ($ticket->canal ?? 'mostrador')) }}</small>
+                                        @if((int) ($ticket->recetas_count ?? 0) > 0)
+                                            <span class="badge bg-label-success">{{ __('Con receta') }}</span>
+                                        @else
+                                            <span class="badge bg-label-secondary">{{ __('Sin receta') }}</span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td>
                                     {{ optional($ticket->fecha_ticket)->format('Y-m-d H:i') ?? '-' }}

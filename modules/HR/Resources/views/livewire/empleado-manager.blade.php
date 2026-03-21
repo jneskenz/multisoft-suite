@@ -63,22 +63,22 @@
             @endif
 
             <div class="table-responsive">
-                <table class="table table-hover table-sm align-middle">
+                <table class="table table-hover table-xs align-middle">
                     <thead class="table-light">
                         <tr>
                             <th class="text-center" style="width: 130px;">{{ __('Acciones') }}</th>
                             <th style="width: 120px;">{{ __('Estado') }}</th>
-                            <th wire:click="sortBy('nombre')" class="cursor-pointer" style="min-width: 200px;">
+                            <th wire:click="sortBy('nombres')" class="cursor-pointer" style="min-width: 200px;">
                                 <div class="d-flex align-items-center">
                                     {{ __('Empleado') }}
-                                    @if ($sortField === 'nombre')
+                                    @if ($sortField === 'nombres')
                                         <i class="ti tabler-chevron-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                     @endif
                                 </div>
                             </th>
                             <th style="min-width: 120px;">{{ __('Código') }}</th>
                             <th style="min-width: 140px;">{{ __('Documento') }}</th>
-                            <th style="min-width: 150px;">{{ __('Cargo') }}</th>
+
                             <th style="min-width: 180px;">{{ __('Empresa') }}</th>
                             <th style="width: 80px;" class="text-center">{{ __('Acceso') }}</th>
                             <th wire:click="sortBy('created_at')" class="cursor-pointer" style="width: 160px;">
@@ -114,8 +114,7 @@
                                             <i class="ti tabler-edit icon-18px"></i>
                                         </button>
 
-                                        <a href="{{ route('hr.empleados.show', $empleado->id) }}"
-                                            wire:click="show({{ $empleado->id }})"
+                                        <a href="{{ group_route('hr.empleados.show', ['empleados' => $empleado->id]) }}"
                                             class="btn btn-sm btn-icon btn-label-primary"
                                             data-bs-toggle="tooltip"
                                             title="{{ __('Ver ficha del empleado') }}"
@@ -221,7 +220,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     @php
                                         $estadoBadge = match((int) $empleado->estado) {
                                             \Modules\HR\Models\Empleado::ESTADO_ACTIVO => ['class' => 'bg-label-success', 'text' => __('Activo')],
@@ -236,7 +235,7 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <h6 class="mb-0">{{ $empleado->nombre }}</h6>
+                                        <span class="mb-0 fw-bold">{{ $empleado->nombre_completo }}</span>
                                         @if($empleado->email)
                                             <small class="text-muted">{{ $empleado->email }}</small>
                                         @endif
@@ -260,9 +259,6 @@
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
-                                </td>
-                                <td>
-                                    {{ $empleado->cargo ?? '-' }}
                                 </td>
                                 <td>
                                     @if($empleado->company)
@@ -334,6 +330,9 @@
                         <h5 class="modal-title">
                             <i class="ti tabler-{{ $isEditing ? 'pencil' : 'user-plus' }} me-2"></i>
                             {{ $isEditing ? __('Editar Empleado') : __('Nuevo Empleado') }}
+                            @if ($isEditing && $codigo_empleado)
+                                <span class="text-muted fw-normal ms-2">| {{ $codigo_empleado }}</span>
+                            @endif
                         </h5>
                         <button type="button" wire:click="closeModal" class="btn-close"></button>
                     </div>
@@ -341,27 +340,137 @@
                     <form wire:submit="save">
                         <div class="modal-body">
                             <div class="row">
-                                <div class="col-12 mb-3">
-                                    <label class="form-label" for="empleado_nombre">
-                                        {{ __('Nombre') }} <span class="text-danger">*</span>
+
+                                {{-- @if ($isEditing)
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label" for="empleado_codigo_empleado">
+                                            {{ __('Código de empleado') }}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="empleado_codigo_empleado"
+                                            wire:model="codigo_empleado"
+                                            class="form-control form-control-sm @error('codigo_empleado') is-invalid @enderror"
+                                            placeholder="{{ __('Ej: EMP-001') }}"
+                                        >
+                                        @error('codigo_empleado')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                @endif --}}
+
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" for="empleado_documento_tipo">
+                                        {{ __('Tipo de documento') }}
+                                    </label>
+                                    <select 
+                                        id="empleado_documento_tipo" 
+                                        wire:model.change="documento_tipo" 
+                                        class="form-select form-select-sm @error('documento_tipo') is-invalid @enderror"
+                                        @if($isEditing) disabled @endif
+                                    >
+                                        <option value="">{{ __('Seleccionar...') }}</option>
+                                        <option value="DNI">DNI</option>
+                                        <option value="CE">Carnet de Extranjería</option>
+                                        <option value="Pasaporte">Pasaporte</option>
+                                        {{-- <option value="RUC">RUC</option> --}}
+                                    </select>
+                                    @error('documento_tipo')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label" for="empleado_documento_numero">
+                                        {{ __('Número de documento') }}
+                                    </label>
+                                    <div class="input-group input-group-sm">
+                                        <input
+                                            type="text"
+                                            id="empleado_documento_numero"
+                                            wire:model.live.debounce.600ms="documento_numero"
+                                            class="form-control @error('documento_numero') is-invalid @enderror"
+                                            placeholder="{{ __('Ej: 12345678') }}"
+                                            @if($isEditing) readonly @endif
+                                            maxlength="50"
+                                        >
+                                        @if($documento_tipo === 'DNI' && strlen($documento_numero) === 8 && !$isEditing)
+                                            <button 
+                                                type="button"
+                                                wire:click="searchDni" 
+                                                class="btn btn-sm btn-outline-primary"
+                                                wire:loading.attr="disabled" wire:target="searchDni,documento_numero"
+                                            >
+                                                <span wire:loading.remove wire:target="searchDni,documento_numero">
+                                                    <i class="ti tabler-search"></i>
+                                                </span>
+                                                <span wire:loading wire:target="searchDni,documento_numero">
+                                                    <span class="spinner-border spinner-border-sm"></span>
+                                                </span>
+                                            </button>
+                                        @endif
+                                    </div>
+
+                                    @error('documento_numero')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-6 mb-3">
+                                    <label class="form-label" for="empleado_nombres">
+                                        {{ __('Nombres') }}
+                                    </label>
+                                    <label class="form-label" for="empleado_apellidos">
+                                        {{ __('y Apellidos') }} <span class="text-danger">*</span>
                                     </label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="ti tabler-user"></i></span>
                                         <input
                                             type="text"
-                                            id="empleado_nombre"
-                                            wire:model="nombre"
-                                            class="form-control @error('nombre') is-invalid @enderror"
-                                            placeholder="{{ __('Nombre completo') }}"
+                                            id="empleado_nombres"
+                                            wire:model="nombres"
+                                            class="form-control form-control-sm @error('nombres') is-invalid @enderror"
+                                            placeholder="{{ __('Nombres completos') }}"
+                                            autofocus
+                                        >
+                                        <input
+                                            type="text"
+                                            id="empleado_apellidos"
+                                            wire:model="apellidos"
+                                            class="form-control form-control-sm @error('apellidos') is-invalid @enderror"
+                                            placeholder="{{ __('Apellidos completos') }}"
                                             autofocus
                                         >
                                     </div>
-                                    @error('nombre')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @error('nombres')
+                                        <span class="invalid-feedback d-inline">{{ $message }}</span>
+                                    @enderror
+                                    @error('apellidos')
+                                        <span class="invalid-feedback d-inline">{{ $message }}</span>
                                     @enderror
                                 </div>
 
-                                <div class="col-12 mb-3">
+                                {{-- <div class="col-6 mb-3">
+                                    <label class="form-label" for="empleado_apellidos">
+                                        {{ __('Apellidos') }} <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text"><i class="ti tabler-user"></i></span>
+                                        <input
+                                            type="text"
+                                            id="empleado_apellidos"
+                                            wire:model="apellidos"
+                                            class="form-control form-control-sm @error('apellidos') is-invalid @enderror"
+                                            placeholder="{{ __('Apellidos completos') }}"
+                                            autofocus
+                                        >
+                                    </div>
+                                    @error('apellidos')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div> --}}
+
+                                <div class="col-md-3 mb-3">
                                     <label class="form-label" for="empleado_email">
                                         {{ __('Correo electrónico') }}
                                     </label>
@@ -371,49 +480,17 @@
                                             type="email"
                                             id="empleado_email"
                                             wire:model="email"
-                                            class="form-control @error('email') is-invalid @enderror"
+                                            class="form-control form-control-sm @error('email') is-invalid @enderror"
                                             placeholder="{{ __('correo@empresa.com') }}"
                                         >
                                     </div>
                                     @error('email')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
-                                    <small class="text-muted">{{ __('Email de contacto (opcional)') }}</small>
+                                    {{-- <small class="text-muted">{{ __('Email de contacto (opcional)') }}</small> --}}
                                 </div>
 
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="empleado_documento_tipo">
-                                        {{ __('Tipo de documento') }}
-                                    </label>
-                                    <select id="empleado_documento_tipo" wire:model="documento_tipo" class="form-select @error('documento_tipo') is-invalid @enderror">
-                                        <option value="">{{ __('Seleccionar...') }}</option>
-                                        <option value="DNI">DNI</option>
-                                        <option value="CE">Carnet de Extranjería</option>
-                                        <option value="Pasaporte">Pasaporte</option>
-                                        <option value="RUC">RUC</option>
-                                    </select>
-                                    @error('documento_tipo')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="empleado_documento_numero">
-                                        {{ __('Número de documento') }}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="empleado_documento_numero"
-                                        wire:model="documento_numero"
-                                        class="form-control @error('documento_numero') is-invalid @enderror"
-                                        placeholder="{{ __('Ej: 12345678') }}"
-                                    >
-                                    @error('documento_numero')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <label class="form-label" for="empleado_telefono">
                                         {{ __('Teléfono') }}
                                     </label>
@@ -423,7 +500,7 @@
                                             type="tel"
                                             id="empleado_telefono"
                                             wire:model="telefono"
-                                            class="form-control @error('telefono') is-invalid @enderror"
+                                            class="form-control form-control-sm @error('telefono') is-invalid @enderror"
                                             placeholder="{{ __('Ej: +51 999 999 999') }}"
                                         >
                                     </div>
@@ -433,38 +510,65 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="empleado_codigo_empleado">
-                                        {{ __('Código de empleado') }}
+                                    <label class="form-label" for="empleado_direccion">
+                                        {{ __('Dirección') }}
                                     </label>
                                     <input
                                         type="text"
-                                        id="empleado_codigo_empleado"
-                                        wire:model="codigo_empleado"
-                                        class="form-control @error('codigo_empleado') is-invalid @enderror"
-                                        placeholder="{{ __('Ej: EMP-001') }}"
+                                        id="empleado_direccion"
+                                        wire:model="direccion"
+                                        class="form-control form-control-sm @error('direccion') is-invalid @enderror"
+                                        placeholder="{{ __('Ej: Av. República de Chile 549, Jesus María') }}"
                                     >
-                                    @error('codigo_empleado')
+                                    @error('direccion')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label" for="empleado_cargo">
-                                        {{ __('Cargo') }}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="empleado_cargo"
-                                        wire:model="cargo"
-                                        class="form-control @error('cargo') is-invalid @enderror"
-                                        placeholder="{{ __('Ej: Gerente de Ventas') }}"
-                                    >
-                                    @error('cargo')
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label" for="empleado_genero">{{ __('Género') }}</label>
+                                    <select id="empleado_genero" wire:model="genero" class="form-select form-select-sm @error('genero') is-invalid @enderror">
+                                        <option value="1">{{ __('Masculino') }}</option>
+                                        <option value="0">{{ __('Femenino') }}</option>
+                                        <option value="2">{{ __('Otro') }}</option>
+                                    </select>
+                                    @error('genero')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label" for="empleado_estado_civil">{{ __('Estado Civil') }}</label>
+                                    <select id="empleado_estado_civil" wire:model="estado_civil" class="form-select form-select-sm @error('geneestado_civilro') is-invalid @enderror">
+                                        <option value="1">{{ __('Soltero(a)') }}</option>
+                                        <option value="0">{{ __('Casado(a)') }}</option>
+                                        <option value="2">{{ __('Viudo(a)') }}</option>
+                                    </select>
+                                    @error('estado_civil')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label" for="empleado_fecha_nacimiento">
+                                        {{ __('Fecha de nacimiento') }}
+                                        {{-- <i class="tabler ti-question" title=""></i> --}}
+                                    </label>
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text"><i class="ti tabler-calendar"></i></span>
+                                        <input
+                                            type="date"
+                                            id="empleado_fecha_ingreso"
+                                            wire:model="fecha_nacimiento"
+                                            class="form-control form-control-sm @error('fecha_nacimiento') is-invalid @enderror"
+                                        >
+                                    </div>
+                                    @error('fecha_ingreso')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- <div class="col-md-6 mb-3">
                                     <label class="form-label" for="empleado_fecha_ingreso">
                                         {{ __('Fecha de ingreso') }}
                                     </label>
@@ -474,22 +578,22 @@
                                             type="date"
                                             id="empleado_fecha_ingreso"
                                             wire:model="fecha_ingreso"
-                                            class="form-control @error('fecha_ingreso') is-invalid @enderror"
+                                            class="form-control form-control-sm @error('fecha_ingreso') is-invalid @enderror"
                                         >
                                     </div>
                                     @error('fecha_ingreso')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
-                                </div>
+                                </div> --}}
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label class="form-label" for="empleado_company_id">
                                         {{ __('Empresa') }} <span class="text-danger">*</span>
                                     </label>
-                                    <select id="empleado_company_id" wire:model.live="company_id" class="form-select @error('company_id') is-invalid @enderror">
+                                    <select id="empleado_company_id" wire:model.live="company_id" class="form-select form-select-sm @error('company_id') is-invalid @enderror">
                                         <option value="">{{ __('Seleccionar empresa...') }}</option>
                                         @foreach($this->availableCompanies as $company)
-                                            <option value="{{ $company->id }}">{{ $company->name }}</option>
+                                            <option value="{{ $company->id }}">{{ $company->name ?? $company->nombre }}</option>
                                         @endforeach
                                     </select>
                                     @error('company_id')
@@ -497,11 +601,11 @@
                                     @enderror
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label class="form-label" for="empleado_location_id">
                                         {{ __('Local') }}
                                     </label>
-                                    <select id="empleado_location_id" wire:model="location_id" class="form-select @error('location_id') is-invalid @enderror" @if(!$company_id) disabled @endif>
+                                    <select id="empleado_location_id" wire:model="location_id" class="form-select form-select-sm @error('location_id') is-invalid @enderror" @if(!$company_id) disabled @endif>
                                         <option value="">{{ __('Seleccionar local...') }}</option>
                                         @foreach($this->availableLocations as $location)
                                             <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -515,9 +619,9 @@
                                     @endif
                                 </div>
 
-                                <div class="col-12 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <label class="form-label" for="empleado_estado">{{ __('Estado') }}</label>
-                                    <select id="empleado_estado" wire:model="estado" class="form-select @error('estado') is-invalid @enderror">
+                                    <select id="empleado_estado" wire:model="estado" class="form-select form-select-sm @error('estado') is-invalid @enderror">
                                         <option value="1">{{ __('Activo') }}</option>
                                         <option value="0">{{ __('Suspendido') }}</option>
                                         <option value="2">{{ __('Cesado') }}</option>

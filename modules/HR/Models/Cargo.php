@@ -4,6 +4,8 @@ namespace Modules\HR\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cargo extends Model
@@ -18,7 +20,7 @@ class Cargo extends Model
     protected $fillable = [
         'departamento_id',
         'codigo',
-        'name',
+        'nombre',
         'descripcion',
         'nivel',
         'estado',
@@ -34,6 +36,26 @@ class Cargo extends Model
     public function departamento(): BelongsTo
     {
         return $this->belongsTo(Departamento::class, 'departamento_id');
+    }
+
+    public function empleadoCargos(): HasMany
+    {
+        return $this->hasMany(EmpleadoCargo::class, 'cargo_id');
+    }
+
+    public function empleadosActuales(): BelongsToMany
+    {
+        return $this->belongsToMany(Empleado::class, 'hr_empleado_cargos', 'cargo_id', 'empleado_id')
+            ->wherePivot('es_actual', true)
+            ->wherePivotNull('deleted_at');
+    }
+
+    /**
+     * Backward compatibility alias.
+     */
+    public function empleados(): BelongsToMany
+    {
+        return $this->empleadosActuales();
     }
 
     public function scopeActive($query)

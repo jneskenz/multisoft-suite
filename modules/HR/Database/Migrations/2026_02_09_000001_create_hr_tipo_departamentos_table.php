@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hr_cargos', function (Blueprint $table) {
+        Schema::create('hr_tipo_departamentos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('departamento_id')->constrained('hr_departamentos')->cascadeOnDelete();
-
             $table->string('codigo', 50)->nullable();
-            $table->string('name', 100);
+            $table->string('nombre', 100);
             $table->text('descripcion')->nullable();
-            $table->string('nivel', 50)->nullable();
             $table->unsignedTinyInteger('estado')->default(1);
 
             $table->unsignedBigInteger('created_by')->nullable();
@@ -27,9 +24,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['departamento_id', 'codigo'], 'uk_hr_cargos_departamento_codigo');
+            $table->unique('codigo', 'uk_hr_tipo_departamentos_codigo');
             $table->index('estado');
-            $table->index('departamento_id');
         });
     }
 
@@ -38,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hr_cargos');
+        Schema::dropIfExists('hr_tipo_departamentos');
     }
 };

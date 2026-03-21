@@ -33,7 +33,7 @@
                 <select wire:model.live="departamentoFilter" class="form-select">
                     <option value="">{{ __('Todos los departamentos') }}</option>
                     @foreach ($this->departamentos as $departamento)
-                        <option value="{{ $departamento->id }}">{{ $departamento->name }}</option>
+                        <option value="{{ $departamento->id }}">{{ $departamento->nombre }}</option>
                     @endforeach
                 </select>
             </div>
@@ -76,10 +76,10 @@
                         <tr>
                             <th class="text-center" style="width: 130px;">{{ __('Acciones') }}</th>
                             <th style="width: 120px;">{{ __('Estado') }}</th>
-                            <th wire:click="sortBy('name')" class="cursor-pointer" style="min-width: 220px;">
+                            <th wire:click="sortBy('nombre')" class="cursor-pointer" style="min-width: 220px;">
                                 <div class="d-flex align-items-center">
                                     {{ __('Cargo') }}
-                                    @if ($sortField === 'name')
+                                    @if ($sortField === 'nombre')
                                         <i class="ti tabler-chevron-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                     @endif
                                 </div>
@@ -212,7 +212,7 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <h6 class="mb-0">{{ $cargo->name }}</h6>
+                                        <h6 class="mb-0">{{ $cargo->nombre }}</h6>
                                         @if($cargo->descripcion)
                                             <small class="text-muted">{{ \Illuminate\Support\Str::limit($cargo->descripcion, 50) }}</small>
                                         @endif
@@ -226,7 +226,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    {{ $cargo->departamento?->name ?? '-' }}
+                                    {{ $cargo->departamento?->nombre ?? '-' }}
                                 </td>
                                 <td>
                                     {{ $cargo->nivel ?? '-' }}
@@ -300,7 +300,7 @@
                                     >
                                         <option value="">{{ __('Seleccionar...') }}</option>
                                         @foreach ($this->departamentos as $departamento)
-                                            <option value="{{ $departamento->id }}">{{ $departamento->name }}</option>
+                                            <option value="{{ $departamento->id }}">{{ $departamento->nombre }}</option>
                                         @endforeach
                                     </select>
                                     @error('departamento_id')
@@ -309,18 +309,18 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label" for="cargo_name">
+                                    <label class="form-label" for="cargo_nombre">
                                         {{ __('Nombre del cargo') }} <span class="text-danger">*</span>
                                     </label>
                                     <input
                                         type="text"
-                                        id="cargo_name"
-                                        wire:model="name"
-                                        class="form-control @error('name') is-invalid @enderror"
+                                        id="cargo_nombre"
+                                        wire:model="nombre"
+                                        class="form-control @error('nombre') is-invalid @enderror"
                                         placeholder="{{ __('Ej: Jefe de RRHH') }}"
                                         autofocus
                                     >
-                                    @error('name')
+                                    @error('nombre')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>

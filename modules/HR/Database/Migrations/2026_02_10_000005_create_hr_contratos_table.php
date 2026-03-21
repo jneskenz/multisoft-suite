@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('hr_contratos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('empleado_id')->constrained('hr_empleados')->cascadeOnDelete();
+            $table->foreignId('cargo_id')->constrained('hr_cargos')->cascadeOnDelete();
 
             $table->string('numero_contrato', 50)->unique();
             $table->string('tipo_contrato', 50);
@@ -42,6 +43,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('empleado_id');
+            $table->index('cargo_id');
             $table->index('numero_contrato');
             $table->index('estado');
             $table->index(['fecha_inicio', 'fecha_fin']);

@@ -14,7 +14,7 @@ class TipoDepartamento extends Model
 
     protected $fillable = [
         'codigo',
-        'name',
+        'nombre',
         'descripcion',
         'estado',
         'created_by',

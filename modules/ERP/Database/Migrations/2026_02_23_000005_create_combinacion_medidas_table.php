@@ -38,7 +38,9 @@ return new class extends Migration
             $table->decimal('precio_x_mayor_base', 10, 2);
             $table->decimal('precio_x_mayor_maximo', 10, 2);
 
-            $table->enum('estado', [1, 0])->default(1);
+            $table->enum('estado', [0, 1])->default(1);
+            $table->enum('estado_matriz', [0, 1])->default(0)->comment('0: por_generar, 1: generada');
+
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
 

@@ -7,7 +7,12 @@ use Livewire\Livewire;
 use Modules\ERP\Livewire\CatalogoMedidasManager;
 use Modules\ERP\Livewire\CatalogoModalManager;
 use Modules\ERP\Livewire\CatalogoTableManager;
+use Modules\ERP\Livewire\OrdenTrabajoManager;
+use Modules\ERP\Livewire\RecetaDetalleForm;
+use Modules\ERP\Livewire\RecetaForm;
+use Modules\ERP\Livewire\OrdenTrabajoForm;
 use Modules\ERP\Livewire\TicketManager;
+use Modules\ERP\Livewire\RecetaManager;
 
 class ERPServiceProvider extends ServiceProvider
 {
@@ -34,6 +39,11 @@ class ERPServiceProvider extends ServiceProvider
         Livewire::component('erp-catalogo-modal-manager', CatalogoModalManager::class);
         Livewire::component('erp-catalogo-table-manager', CatalogoTableManager::class);
         Livewire::component('erp-ticket-manager', TicketManager::class);
+        Livewire::component('erp-receta-manager', RecetaManager::class);
+        Livewire::component('erp-receta-form', RecetaForm::class);
+        Livewire::component('erp-receta-detalle-form', RecetaDetalleForm::class);
+        Livewire::component('erp-orden-trabajo-manager', OrdenTrabajoManager::class);
+        Livewire::component('erp-orden-trabajo-form', OrdenTrabajoForm::class);
     }
 
     protected function registerConfig(): void

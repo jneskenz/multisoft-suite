@@ -21,7 +21,7 @@ class Departamento extends Model
         'padre_id',
         'jefe_id',
         'codigo',
-        'name',
+        'nombre',
         'descripcion',
         'estado',
         'created_by',

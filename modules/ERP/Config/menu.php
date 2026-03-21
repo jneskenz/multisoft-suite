@@ -144,6 +144,81 @@ return [
         //         ],
         //     ],
         // ],
+        // REMUNERACIONES
+[
+    'key' => 'remuneraciones',
+    'title' => ['es' => 'Remuneraciones', 'en' => 'Compensation'],
+    'icon' => 'ti tabler-wallet',
+    'permission' => 'hr.compensation.view',
+    'children' => [
+        [
+            'key' => 'rem_salarios_grp',
+            'title' => ['es' => 'Salarios', 'en' => 'Salaries'],
+            'icon' => 'ti tabler-currency-dollar',
+            'permission' => 'hr.compensation.view',
+            'children' => [
+                [
+                    'key' => 'rem_salarios',
+                    'title' => ['es' => 'Salarios', 'en' => 'Salaries'],
+                    'icon' => 'ti tabler-list',
+                    'route' => 'hr.remuneraciones.salarios.index',
+                    'permission' => 'hr.compensation.view',
+                ],
+                [
+                    'key' => 'rem_historial',
+                    'title' => ['es' => 'Historial de Cambios', 'en' => 'Change History'],
+                    'icon' => 'ti tabler-history',
+                    'route' => 'hr.remuneraciones.historial.index',
+                    'permission' => 'hr.compensation.view',
+                ],
+            ],
+        ],
+        [
+            'key' => 'rem_escalas_grp',
+            'title' => ['es' => 'Escalas Salariales', 'en' => 'Salary Scales'],
+            'icon' => 'ti tabler-chart-bar',
+            'permission' => 'hr.compensation.scales.view',
+            'children' => [
+                [
+                    'key' => 'rem_escalas',
+                    'title' => ['es' => 'Bandas / Escalas', 'en' => 'Bands / Scales'],
+                    'icon' => 'ti tabler-list',
+                    'route' => 'hr.remuneraciones.escalas.index',
+                    'permission' => 'hr.compensation.scales.view',
+                ],
+                [
+                    'key' => 'rem_niveles',
+                    'title' => ['es' => 'Niveles y Rangos', 'en' => 'Levels & Ranges'],
+                    'icon' => 'ti tabler-adjustments',
+                    'route' => 'hr.remuneraciones.niveles.index',
+                    'permission' => 'hr.compensation.scales.view',
+                ],
+            ],
+        ],
+        [
+            'key' => 'rem_beneficios_grp',
+            'title' => ['es' => 'Beneficios y Descuentos', 'en' => 'Benefits & Deductions'],
+            'icon' => 'ti tabler-shield-check',
+            'permission' => 'hr.compensation.benefits.view',
+            'children' => [
+                [
+                    'key' => 'rem_beneficios',
+                    'title' => ['es' => 'Beneficios Fijos', 'en' => 'Fixed Benefits'],
+                    'icon' => 'ti tabler-gift',
+                    'route' => 'hr.remuneraciones.beneficios.index',
+                    'permission' => 'hr.compensation.benefits.view',
+                ],
+                [
+                    'key' => 'rem_descuentos',
+                    'title' => ['es' => 'Descuentos Fijos', 'en' => 'Fixed Deductions'],
+                    'icon' => 'ti tabler-minus',
+                    'route' => 'hr.remuneraciones.descuentos.index',
+                    'permission' => 'hr.compensation.benefits.view',
+                ],
+            ],
+        ],
+    ],
+],
         [
             'key' => 'optometry',
             'title' => ['es' => 'Optometria', 'en' => 'Optometry'],

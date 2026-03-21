@@ -4,15 +4,15 @@ namespace Modules\HR\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Modules\HR\Enums\EstadoContrato;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Core\Models\Company;
 use Modules\Core\Models\GroupCompany;
 use Modules\Core\Models\Location;
 use Modules\Core\Models\Tenant;
+use Modules\HR\Enums\EstadoContrato;
 
 class Empleado extends Model
 {
@@ -22,17 +22,22 @@ class Empleado extends Model
 
     protected $fillable = [
         'user_id',
-        'nombre',
+        'nombres',
+        'apellidos',
+        'nombre', // Legacy full name field kept for compatibility.
         'email',
         'documento_tipo',
         'documento_numero',
         'telefono',
+        'direccion',
+        'estado_civil',
+        'genero',
+        'fecha_nacimiento',
         'tenant_id',
         'group_company_id',
         'company_id',
         'location_id',
         'codigo_empleado',
-        'cargo',
         'fecha_ingreso',
         'fecha_cese',
         'estado',
@@ -40,6 +45,7 @@ class Empleado extends Model
 
     protected $casts = [
         'estado' => 'integer',
+        'fecha_nacimiento' => 'date',
         'fecha_ingreso' => 'date',
         'fecha_cese' => 'date',
         'created_at' => 'datetime',
@@ -47,62 +53,40 @@ class Empleado extends Model
         'deleted_at' => 'datetime',
     ];
 
-    // Estados
-    const ESTADO_SUSPENDIDO = 0;
-    const ESTADO_ACTIVO = 1;
-    const ESTADO_CESADO = 2;
+    public const ESTADO_SUSPENDIDO = 0;
+    public const ESTADO_ACTIVO = 1;
+    public const ESTADO_CESADO = 2;
 
-    /**
-     * Relación opcional con usuario del sistema
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relación con tenant
-     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
-    /**
-     * Relación con grupo empresa
-     */
     public function groupCompany(): BelongsTo
     {
         return $this->belongsTo(GroupCompany::class);
     }
 
-    /**
-     * Relación con empresa
-     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    /**
-     * Relación con local (opcional)
-     */
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
-    /**
-     * Todos los contratos del empleado
-     */
     public function contratos(): HasMany
     {
         return $this->hasMany(Contrato::class, 'empleado_id');
     }
 
-    /**
-     * Contrato vigente (firmado y sin terminar)
-     */
     public function contratoVigente(): HasOne
     {
         return $this->hasOne(Contrato::class, 'empleado_id')
@@ -111,92 +95,76 @@ class Empleado extends Model
             ->latest('fecha_inicio');
     }
 
-    /**
-     * Scope para filtrar por grupo actual
-     */
     public function scopeForCurrentGroup($query)
     {
         if ($groupId = session('group_company_id')) {
             return $query->where('group_company_id', $groupId);
         }
+
         return $query;
     }
 
-    /**
-     * Scope para filtrar por empresa
-     */
     public function scopeForCompany($query, $companyId)
     {
         return $query->where('company_id', $companyId);
     }
 
-    /**
-     * Scope para filtrar por local
-     */
     public function scopeForLocation($query, $locationId)
     {
         return $query->where('location_id', $locationId);
     }
 
-    /**
-     * Scope para empleados activos
-     */
     public function scopeActive($query)
     {
         return $query->where('estado', self::ESTADO_ACTIVO);
     }
 
-    /**
-     * Scope para empleados suspendidos
-     */
     public function scopeSuspended($query)
     {
         return $query->where('estado', self::ESTADO_SUSPENDIDO);
     }
 
-    /**
-     * Scope para empleados cesados
-     */
     public function scopeCesado($query)
     {
         return $query->where('estado', self::ESTADO_CESADO);
     }
 
-    /**
-     * Verificar si el empleado está activo
-     */
     public function isActivo(): bool
     {
         return $this->estado === self::ESTADO_ACTIVO;
     }
 
-    /**
-     * Verificar si el empleado está suspendido
-     */
     public function isSuspendido(): bool
     {
         return $this->estado === self::ESTADO_SUSPENDIDO;
     }
 
-    /**
-     * Verificar si el empleado está cesado
-     */
     public function isCesado(): bool
     {
         return $this->estado === self::ESTADO_CESADO;
     }
 
-    /**
-     * Verificar si el empleado tiene acceso al sistema
-     */
     public function hasSystemAccess(): bool
     {
         return !is_null($this->user_id);
     }
 
-    /**
-     * Obtener el label del estado
-     */
+    public function getNombreCompletoAttribute(): string
+    {
+        $full = trim(
+            implode(' ', array_filter([
+                $this->nombres,
+                $this->apellidos,
+            ]))
+        );
+
+        if ($full !== '') {
+            return $full;
+        }
+
+        return (string) ($this->attributes['nombre'] ?? '');
+    }
+
     public function getEstadoLabelAttribute(): string
     {
         return match ($this->estado) {
@@ -207,9 +175,6 @@ class Empleado extends Model
         };
     }
 
-    /**
-     * Obtener el color del badge del estado
-     */
     public function getEstadoBadgeClassAttribute(): string
     {
         return match ($this->estado) {

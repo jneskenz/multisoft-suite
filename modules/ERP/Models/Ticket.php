@@ -5,6 +5,7 @@ namespace Modules\ERP\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Partners\Models\Persona;
 
@@ -57,6 +58,16 @@ class Ticket extends Model
     public function paciente(): BelongsTo
     {
         return $this->belongsTo(Persona::class, 'paciente_id');
+    }
+
+    public function recetas(): HasMany
+    {
+        return $this->hasMany(Receta::class, 'ticket_id');
+    }
+
+    public function ordenesTrabajo(): HasMany
+    {
+        return $this->hasMany(OrdenTrabajo::class, 'ticket_id');
     }
 
     public function creadoPor(): BelongsTo

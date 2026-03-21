@@ -2,6 +2,7 @@
 
 namespace Modules\HR\Livewire;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -10,6 +11,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Modules\Core\Models\GroupCompany;
 use Modules\HR\Enums\EstadoContrato;
+use Modules\HR\Models\Cargo;
 use Modules\HR\Models\CategoriaDocumento;
 use Modules\HR\Models\Contrato;
 use Modules\HR\Models\Empleado;
@@ -41,6 +43,7 @@ class ContratoManager extends Component
    public ?int $contratoId = null;
 
    public ?int $empleado_id = null;
+   public ?int $cargo_id = null;
    public string $numero_contrato = '';
    public ?int $tipo_contrato_id = null;
    public ?int $modalidad_id = null;
@@ -80,7 +83,7 @@ class ContratoManager extends Component
       $group = $this->currentGroup;
 
       $query = Contrato::query()
-         ->with(['empleado.company', 'tipoContrato', 'modalidad', 'documentosGenerados'])
+         ->with(['empleado.company', 'tipoContrato', 'modalidad', 'cargo', 'documentosGenerados'])
          ->whereHas('empleado', function ($q) use ($group) {
             if ($group) {
                $q->where('group_company_id', $group->id);
@@ -125,11 +128,27 @@ class ContratoManager extends Component
    public function empleados()
    {
       $group = $this->currentGroup;
+
+      // IDs de empleados que ya tienen contrato no eliminado
+      $empleadosConContrato = Contrato::whereNull('deleted_at')
+         ->when($this->isEditing && $this->contratoId, fn($q) => $q->where('id', '!=', $this->contratoId))
+         ->pluck('empleado_id')
+         ->toArray();
+
       return Empleado::query()
          ->when($group, fn($q) => $q->where('group_company_id', $group->id))
          ->where('estado', Empleado::ESTADO_ACTIVO)
+         ->orderBy('nombres')
+         ->get(['id', 'nombres', 'apellidos', 'codigo_empleado', 'documento_numero'])
+         ->map(fn($emp) => $emp->setAttribute('tiene_contrato', in_array($emp->id, $empleadosConContrato)));
+   }
+
+   #[Computed]
+   public function cargos()
+   {
+      return Cargo::active()
          ->orderBy('nombre')
-         ->get(['id', 'nombre', 'codigo_empleado', 'documento_numero']);
+         ->get(['id', 'nombre', 'codigo']);
    }
 
    /**
@@ -189,6 +208,7 @@ class ContratoManager extends Component
    {
       return [
          'empleado_id'       => ['required', 'exists:hr_empleados,id'],
+         'cargo_id'          => ['required', 'exists:hr_cargos,id'],
          'numero_contrato'   => [
             'required',
             'string',
@@ -211,6 +231,8 @@ class ContratoManager extends Component
       return [
          'empleado_id.required'      => 'Debe seleccionar un empleado.',
          'empleado_id.exists'        => 'El empleado seleccionado no existe.',
+         'cargo_id.required'         => 'Debe seleccionar un cargo.',
+         'cargo_id.exists'           => 'El cargo seleccionado no existe.',
          'numero_contrato.required'  => 'El número de contrato es obligatorio.',
          'numero_contrato.unique'    => 'Este número de contrato ya existe.',
          'tipo_contrato_id.required' => 'El tipo de contrato es obligatorio.',
@@ -283,6 +305,7 @@ class ContratoManager extends Component
 
       $this->contratoId = $contrato->id;
       $this->empleado_id = $contrato->empleado_id;
+      $this->cargo_id = $contrato->cargo_id;
       $this->numero_contrato = $contrato->numero_contrato;
       $this->tipo_contrato_id = $contrato->tipo_contrato_id;
       $this->modalidad_id = $contrato->modalidad_id;
@@ -306,6 +329,7 @@ class ContratoManager extends Component
 
       $data = [
          'empleado_id'         => $this->empleado_id,
+         'cargo_id'            => $this->cargo_id,
          'numero_contrato'     => $this->numero_contrato,
          'tipo_contrato_id'    => $this->tipo_contrato_id,
          'modalidad_id'        => $this->modalidad_id ?: null,
@@ -315,22 +339,76 @@ class ContratoManager extends Component
          'horas_semanales'     => $this->horas_semanales ?: null,
          'descripcion_horario' => $this->descripcion_horario ?: null,
          'notas'               => $this->notas ?: null,
-         'estado'              => $this->estado,
-         'estado_contrato'     => $this->estado_contrato,
+         'estado'              => 1,
          'updated_by'          => auth()->id(),
       ];
 
-      if ($this->isEditing) {
-         $contrato = Contrato::findOrFail($this->contratoId);
-         $contrato->update($data);
-         session()->flash('message', __('Contrato actualizado exitosamente.'));
-      } else {
-         $data['created_by'] = auth()->id();
-         Contrato::create($data);
-         session()->flash('message', __('Contrato creado exitosamente.'));
-      }
+      DB::transaction(function () use ($data, &$message) {
+         if ($this->isEditing) {
+            $contrato = Contrato::findOrFail($this->contratoId);
+            $contrato->update($data);
+
+            // Regenerar documento borrador si sigue en BORRADOR
+            if ($contrato->estado_contrato === EstadoContrato::BORRADOR) {
+               $this->regenerarDocumentoBorrador($contrato);
+            }
+
+            $message = __('Contrato actualizado exitosamente.');
+         } else {
+            $data['estado_contrato'] = EstadoContrato::BORRADOR->value;
+            $data['created_by'] = auth()->id();
+            $contrato = Contrato::create($data);
+
+            // Auto-generar documento borrador
+            $this->generarDocumentoBorrador($contrato);
+
+            $message = __('Contrato creado exitosamente.');
+         }
+      });
 
       $this->closeModal();
+      $this->dispatch('notify', type: 'success', message: $message ?? '');
+   }
+
+   /**
+    * Genera el documento borrador automáticamente al crear un contrato.
+    */
+   private function generarDocumentoBorrador(Contrato $contrato): void
+   {
+      // Buscar plantilla predeterminada para el tipo de contrato
+      $plantilla = PlantillaDocumento::where('tipo_documento_id', $contrato->tipo_contrato_id)
+         ->when($contrato->modalidad_id, fn($q) => $q->where(function ($q2) use ($contrato) {
+            $q2->where('categoria_documento_id', $contrato->modalidad_id)
+               ->orWhereNull('categoria_documento_id');
+         }))
+         ->where('estado', '1')
+         ->orderBy('es_predeterminada', 'desc')
+         ->first();
+
+      if (!$plantilla) {
+         return; // Sin plantilla disponible, no se genera documento
+      }
+
+      $service = app(DocumentoService::class);
+      $service->generarDesdeContrato($contrato, $plantilla, '0'); // estado_documento = 0 (Borrador)
+   }
+
+   /**
+    * Regenera el documento cuando el contrato está en BORRADOR y se edita.
+    */
+   private function regenerarDocumentoBorrador(Contrato $contrato): void
+   {
+      // Eliminar documentos borrador anteriores
+      $contrato->documentosGenerados()
+         ->where('estado_documento', '0')
+         ->each(function ($doc) {
+            if ($doc->ruta_archivo_pdf) {
+               \Illuminate\Support\Facades\Storage::disk('local')->delete($doc->ruta_archivo_pdf);
+            }
+            $doc->delete();
+         });
+
+      $this->generarDocumentoBorrador($contrato);
    }
 
    // ─── CRUD - Eliminar ──────────────────────────────────────
@@ -378,6 +456,87 @@ class ContratoManager extends Component
       $this->closeModal();
    }
 
+   // ─── Flujo de estados ──────────────────────────────────────
+   public function confirmarContrato(int $id): void
+   {
+      $contrato = Contrato::findOrFail($id);
+
+      if ($contrato->estado_contrato !== EstadoContrato::BORRADOR) {
+         $this->dispatch('notify', type: 'error', message: __('Solo se pueden confirmar contratos en estado Borrador.'));
+         return;
+      }
+
+      DB::transaction(function () use ($contrato) {
+         $contrato->update([
+            'estado_contrato' => EstadoContrato::REVISION,
+            'updated_by' => auth()->id(),
+         ]);
+
+         // Actualizar documentos generados a "Por firmar"
+         $contrato->documentosGenerados()
+            ->where('estado_documento', '0')
+            ->update(['estado_documento' => '1', 'actualizado_por' => auth()->id()]);
+      });
+
+      $this->dispatch('notify', type: 'success', message: __('Contrato enviado a revisión / firma.'));
+   }
+
+   public function firmarContrato(int $id): void
+   {
+      $contrato = Contrato::findOrFail($id);
+
+      if ($contrato->estado_contrato !== EstadoContrato::REVISION) {
+         $this->dispatch('notify', type: 'error', message: __('Solo se pueden firmar contratos en estado Revisión.'));
+         return;
+      }
+
+      DB::transaction(function () use ($contrato) {
+         $contrato->update([
+            'estado_contrato' => EstadoContrato::FIRMADO,
+            'updated_by' => auth()->id(),
+         ]);
+
+         // Actualizar documentos a "Vigente"
+         $contrato->documentosGenerados()
+            ->where('estado_documento', '1')
+            ->update([
+               'estado_documento' => '2',
+               'estado_firmas' => 'firmado',
+               'firmado_por_empleador_at' => now(),
+               'actualizado_por' => auth()->id(),
+            ]);
+      });
+
+      $this->dispatch('notify', type: 'success', message: __('Contrato firmado exitosamente.'));
+   }
+
+   public function rechazarContrato(int $id): void
+   {
+      $contrato = Contrato::findOrFail($id);
+
+      if ($contrato->estado_contrato !== EstadoContrato::REVISION) {
+         $this->dispatch('notify', type: 'error', message: __('Solo se pueden rechazar contratos en estado Revisión.'));
+         return;
+      }
+
+      DB::transaction(function () use ($contrato) {
+         $contrato->update([
+            'estado_contrato' => EstadoContrato::RECHAZADO,
+            'updated_by' => auth()->id(),
+         ]);
+
+         $contrato->documentosGenerados()
+            ->where('estado_documento', '1')
+            ->update([
+               'estado_documento' => '5',
+               'estado_firmas' => 'rechazado',
+               'actualizado_por' => auth()->id(),
+            ]);
+      });
+
+      $this->dispatch('notify', type: 'error', message: __('Contrato rechazado.'));
+   }
+
    // ─── Helpers ──────────────────────────────────────────────
    public function closeModal(): void
    {
@@ -395,6 +554,7 @@ class ContratoManager extends Component
       $this->reset([
          'contratoId',
          'empleado_id',
+         'cargo_id',
          'numero_contrato',
          'tipo_contrato_id',
          'modalidad_id',

@@ -4,6 +4,7 @@ namespace Modules\ERP\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Catalogo extends Model
@@ -64,5 +65,19 @@ class Catalogo extends Model
     {
         return $query->where('estado', 1);
     }
-}
 
+    public function combinacionesMedida(): HasMany
+    {
+        return $this->hasMany(CombinacionMedida::class, 'catalogo_id');
+    }
+
+    public function matrizLentes(): HasMany
+    {
+        return $this->hasMany(MatrizLente::class, 'catalogo_id');
+    }
+
+    public function ordenTrabajoDetalles(): HasMany
+    {
+        return $this->hasMany(OrdenTrabajoDetalle::class, 'catalogo_id');
+    }
+}

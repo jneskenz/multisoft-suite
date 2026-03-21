@@ -2,6 +2,7 @@
 
 namespace Modules\HR\Livewire;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -31,14 +32,18 @@ class EmpleadoManager extends Component
     public bool $showDeleteModal = false;
     public bool $isEditing = false;
     public ?int $empleadoId = null;
-    public string $nombre = '';
+    public string $nombres = '';
+    public string $apellidos = '';
     public string $email = '';
     public int $estado = 1;
     public string $documento_tipo = '';
     public string $documento_numero = '';
     public string $telefono = '';
+    public string $direccion = '';
+    public string $estado_civil = '';
+    public string $genero = '';
+    public string $fecha_nacimiento = '';
     public string $codigo_empleado = '';
-    public string $cargo = '';
     public string $fecha_ingreso = '';
     public ?int $company_id = null;
     public ?int $location_id = null;
@@ -63,7 +68,8 @@ class EmpleadoManager extends Component
             ->with(['company', 'location', 'user'])
             ->when($group, fn ($q) => $q->where('group_company_id', $group->id))
             ->when($this->search, fn ($q) => $q->where(function ($q) {
-                $q->where('nombre', 'like', "%{$this->search}%")
+                $q->where('nombres', 'like', "%{$this->search}%")
+                    ->orWhere('apellidos', 'like', "%{$this->search}%")
                   ->orWhere('email', 'like', "%{$this->search}%")
                   ->orWhere('documento_numero', 'like', "%{$this->search}%")
                   ->orWhere('codigo_empleado', 'like', "%{$this->search}%");
@@ -113,7 +119,8 @@ class EmpleadoManager extends Component
     protected function rules(): array
     {
         $rules = [
-            'nombre' => ['required', 'string', 'min:3', 'max:255'],
+            'nombres' => ['required', 'string', 'min:3', 'max:255'],
+            'apellidos' => ['required', 'string', 'min:3', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'estado' => ['required', 'integer', 'in:0,1,2'],
             'documento_tipo' => ['nullable', 'string', 'max:50'],
@@ -124,13 +131,16 @@ class EmpleadoManager extends Component
                 Rule::unique('hr_empleados', 'documento_numero')->ignore($this->empleadoId)
             ],
             'telefono' => ['nullable', 'string', 'max:50'],
+            'direccion' => ['nullable', 'string', 'max:255'],
+            'estado_civil' => ['nullable', 'string', 'max:20'],
+            'genero' => ['nullable', 'string', 'max:20'],
+            'fecha_nacimiento' => ['nullable', 'date'],
             'codigo_empleado' => [
                 'nullable',
                 'string',
                 'max:50',
                 Rule::unique('hr_empleados', 'codigo_empleado')->ignore($this->empleadoId)
             ],
-            'cargo' => ['nullable', 'string', 'max:255'],
             'fecha_ingreso' => ['nullable', 'date'],
             'company_id' => ['required', 'exists:core_companies,id'],
             'location_id' => ['nullable', 'exists:core_locations,id'],
@@ -141,9 +151,15 @@ class EmpleadoManager extends Component
     protected function messages(): array
     {
         return [
-            'nombre.required' => 'El nombre es obligatorio.',
-            'nombre.min' => 'El nombre debe tener al menos 3 caracteres.',
+            'nombres.required' => 'El nombre es obligatorio.',
+            'apellidos.required' => 'El apellido es obligatorio.',
+            'nombres.min' => 'El nombre debe tener al menos 3 caracteres.',
+            'apellidos.min' => 'El apellido debe tener al menos 3 caracteres.',
             'email.email' => 'Ingresa un correo electrónico válido.',
+            'fecha_nacimiento.date' => 'La fecha de nacimiento no es válida.',
+            'direccion.required' => 'La dirección es obligatoria.',
+            'estado_civil.required' => 'El estado civil es obligatorio.',
+            'genero.required' => 'El género es obligatorio.',
             'documento_numero.unique' => 'Este número de documento ya está registrado.',
             'codigo_empleado.unique' => 'Este código de empleado ya está registrado.',
             'company_id.required' => 'La empresa es obligatoria.',
@@ -195,14 +211,18 @@ class EmpleadoManager extends Component
     {
         $empleado = Empleado::findOrFail($id);
         $this->empleadoId = $empleado->id;
-        $this->nombre = $empleado->nombre;
+        $this->nombres = $empleado->nombres;
+        $this->apellidos = $empleado->apellidos;
         $this->email = $empleado->email ?? '';
         $this->estado = $empleado->estado ?? Empleado::ESTADO_ACTIVO;
         $this->documento_tipo = $empleado->documento_tipo ?? '';
         $this->documento_numero = $empleado->documento_numero ?? '';
         $this->telefono = $empleado->telefono ?? '';
+        $this->direccion = $empleado->direccion ?? '';
+        $this->estado_civil = $empleado->estado_civil ?? '';
+        $this->genero = $empleado->genero ?? '';
+        $this->fecha_nacimiento = $empleado->fecha_nacimiento?->format('Y-m-d') ?? '';
         $this->codigo_empleado = $empleado->codigo_empleado ?? '';
-        $this->cargo = $empleado->cargo ?? '';
         $this->fecha_ingreso = $empleado->fecha_ingreso?->format('Y-m-d') ?? '';
         $this->company_id = $empleado->company_id;
         $this->location_id = $empleado->location_id;
@@ -215,34 +235,50 @@ class EmpleadoManager extends Component
     {
         $this->validate();
         $group = $this->currentGroup;
-        
+        $message = '';
+
         $data = [
-            'nombre' => $this->nombre,
+            'nombres' => $this->nombres,
+            'apellidos' => $this->apellidos,
             'email' => $this->email ?: null,
             'estado' => $this->estado,
             'documento_tipo' => $this->documento_tipo ?: null,
             'documento_numero' => $this->documento_numero ?: null,
             'telefono' => $this->telefono ?: null,
+            'direccion' => $this->direccion ?: null,
+            'estado_civil' => $this->estado_civil ?: null,
+            'genero' => $this->genero ?: null,
+            'fecha_nacimiento' => $this->fecha_nacimiento ?: null,
             'codigo_empleado' => $this->codigo_empleado ?: null,
-            'cargo' => $this->cargo ?: null,
             'fecha_ingreso' => $this->fecha_ingreso ?: null,
             'company_id' => $this->company_id,
             'location_id' => $this->location_id,
         ];
-        
-        if ($this->isEditing) {
-            $empleado = Empleado::find($this->empleadoId);
-            $empleado->update($data);
-            $message = __('Empleado actualizado correctamente.');
-        } else {
-            if ($group) {
-                $data['tenant_id'] = $group->tenant_id;
-                $data['group_company_id'] = $group->id;
+
+        DB::transaction(function () use ($data, $group, &$message) {
+            if ($this->isEditing) {
+                $empleado = Empleado::findOrFail($this->empleadoId);
+                $empleado->update($data);
+                $message = __('Empleado actualizado correctamente.');
+            } else {
+                if ($group) {
+                    $data['tenant_id'] = $group->tenant_id;
+                    $data['group_company_id'] = $group->id;
+                }
+                // Generar código de empleado automático
+                $lastCode = Empleado::where('group_company_id', $group?->id)
+                    ->whereNotNull('codigo_empleado')
+                    ->max('codigo_empleado');
+                $nextNumber = 1;
+                if ($lastCode && preg_match('/(\d+)$/', $lastCode, $m)) {
+                    $nextNumber = (int) $m[1] + 1;
+                }
+                $data['codigo_empleado'] = 'EMP-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+                Empleado::create($data);
+                $message = __('Empleado creado correctamente.');
             }
-            $empleado = Empleado::create($data);
-            $message = __('Empleado creado correctamente.');
-        }
-        
+        });
+
         $this->closeModal();
         $this->dispatch('notify', type: 'success', message: $message);
     }
@@ -273,12 +309,87 @@ class EmpleadoManager extends Component
         $this->resetForm();
     }
 
+    // Búsqueda de datos por DNI
+    public function searchDni(): void
+    {
+        // Solo buscar si está en modo creación (no edición) y si seleccionó DNI
+        if ($this->isEditing || $this->documento_tipo !== 'DNI' || !$this->documento_numero) {
+            return;
+        }
+
+        // Validar formato DNI (8 dígitos)
+        if (!preg_match('/^\d{8}$/', $this->documento_numero)) {
+            $this->addError('documento_numero', 'El DNI debe tener exactamente 8 dígitos numéricos.');
+            return;
+        }
+
+        // Verificar que el DNI no esté ya registrado
+        if (Empleado::where('documento_numero', $this->documento_numero)
+            ->where('id', '!=', $this->empleadoId ?? 0)
+            ->exists()) {
+            $this->addError('documento_numero', 'Este número de DNI ya está registrado en el sistema.');
+            return;
+        }
+
+        // Consultar la API de DNI
+        $resultado = lookup_dni($this->documento_numero);
+
+        if (!$resultado['success']) {
+            $this->addError('documento_numero', $resultado['message']);
+            return;
+        }
+
+        $datos = $resultado['data'];
+
+        // Rellenar los campos automáticamente
+        if (!empty($datos['nombres'])) {
+            $this->nombres = $datos['nombres'];
+        }
+
+        if (!empty($datos['apellido_paterno']) || !empty($datos['apellido_materno'])) {
+            $apellidos = trim(
+                ($datos['apellido_paterno'] ?? '') . ' ' .
+                ($datos['apellido_materno'] ?? '')
+            );
+            $this->apellidos = $apellidos ?: $this->apellidos;
+        }
+
+        // Notificar éxito
+        $this->dispatch('notify', type: 'success', message: 'Datos del DNI cargados correctamente.');
+    }
+
+    /**
+     * Listener que se ejecuta cuando cambia el campo documento_numero
+     * Solo busca si es DNI con 8 dígitos
+     */
+    public function updatedDocumentoNumero(): void
+    {
+        // Limpiar errores previos
+        $this->resetErrorBag('documento_numero');
+
+        // Buscar automáticamente después de completar 8 dígitos
+        if ($this->documento_tipo === 'DNI' && strlen($this->documento_numero) === 8) {
+            $this->searchDni();
+        }
+    }
+
+    /**
+     * Listener que se ejecuta cuando cambia el tipo de documento.
+     * Solo limpiamos errores — NO tocamos el número ya ingresado para evitar
+     * que el morph de Livewire lo borre mientras el usuario está tipeando.
+     */
+    public function updatedDocumentoTipo(): void
+    {
+        $this->resetErrorBag('documento_numero');
+    }
+
     private function resetForm(): void
     {
         $this->reset([
-            'empleadoId', 'nombre', 'email', 'estado',
+            'empleadoId', 'nombres', 'apellidos', 'email', 'estado',
             'documento_tipo', 'documento_numero', 'telefono',
-            'codigo_empleado', 'cargo', 'fecha_ingreso',
+            'direccion', 'estado_civil', 'genero', 'fecha_nacimiento',
+            'codigo_empleado', 'fecha_ingreso',
             'company_id', 'location_id'
         ]);
         $this->estado = Empleado::ESTADO_ACTIVO;

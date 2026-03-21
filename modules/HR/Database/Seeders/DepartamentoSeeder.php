@@ -27,7 +27,7 @@ class DepartamentoSeeder extends Seeder
         $departamentos = [
             [
                 'codigo' => 'GER',
-                'name' => 'Gerencia General',
+                'nombre' => 'Gerencia General',
                 'descripcion' => 'Direccion general de la organizacion',
                 'estado' => 1,
                 'tipo_codigo' => 'ADM',
@@ -36,7 +36,7 @@ class DepartamentoSeeder extends Seeder
             ],
             [
                 'codigo' => 'ADM',
-                'name' => 'Administracion',
+                'nombre' => 'Administracion',
                 'descripcion' => 'Gestion administrativa y servicios generales',
                 'estado' => 1,
                 'tipo_codigo' => 'ADM',
@@ -45,7 +45,7 @@ class DepartamentoSeeder extends Seeder
             ],
             [
                 'codigo' => 'RRHH',
-                'name' => 'Recursos Humanos',
+                'nombre' => 'Recursos Humanos',
                 'descripcion' => 'Gestion del talento y relaciones laborales',
                 'estado' => 1,
                 'tipo_codigo' => 'ADM',
@@ -54,7 +54,7 @@ class DepartamentoSeeder extends Seeder
             ],
             [
                 'codigo' => 'FIN',
-                'name' => 'Finanzas',
+                'nombre' => 'Finanzas',
                 'descripcion' => 'Control financiero y contable',
                 'estado' => 1,
                 'tipo_codigo' => 'FIN',
@@ -63,7 +63,7 @@ class DepartamentoSeeder extends Seeder
             ],
             [
                 'codigo' => 'COM',
-                'name' => 'Comercial',
+                'nombre' => 'Comercial',
                 'descripcion' => 'Ventas y relacion con clientes',
                 'estado' => 1,
                 'tipo_codigo' => 'COM',
@@ -72,7 +72,7 @@ class DepartamentoSeeder extends Seeder
             ],
             [
                 'codigo' => 'OPE',
-                'name' => 'Operaciones',
+                'nombre' => 'Operaciones',
                 'descripcion' => 'Ejecucion operativa del negocio',
                 'estado' => 1,
                 'tipo_codigo' => 'OPE',
@@ -81,7 +81,7 @@ class DepartamentoSeeder extends Seeder
             ],
             [
                 'codigo' => 'TI',
-                'name' => 'Tecnologia',
+                'nombre' => 'Tecnologia',
                 'descripcion' => 'Sistemas, infraestructura y desarrollo',
                 'estado' => 1,
                 'tipo_codigo' => 'SOP',
@@ -96,7 +96,7 @@ class DepartamentoSeeder extends Seeder
         foreach ($departamentos as $item) {
             $payload = [
                 'tipo_departamento_id' => $tipos[$item['tipo_codigo']]->id ?? null,
-                'name' => $item['name'],
+                'nombre' => $item['nombre'],
                 'descripcion' => $item['descripcion'],
                 'estado' => $item['estado'],
             ];

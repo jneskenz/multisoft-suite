@@ -43,4 +43,20 @@ return [
     'session' => [
         'timeout' => 120, // minutos
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Consulta de Documentos (DNI / RUC)
+    |--------------------------------------------------------------------------
+    |
+    | Configuración de la API externa para validar DNI y RUC.
+    | API compatible: https://apis.net.pe  (u otra con formato /dni/{num}, /ruc/{num})
+    |
+    */
+    'document_lookup' => [
+        'base_url'  => env('DOCUMENT_LOOKUP_URL', 'https://api.decolecta.com/v1'),
+        'token'     => env('DOCUMENT_LOOKUP_TOKEN', ''),
+        'timeout'   => (int) env('DOCUMENT_LOOKUP_TIMEOUT', 10),
+        'cache_ttl' => (int) env('DOCUMENT_LOOKUP_CACHE_TTL', 3600),
+    ],
 ];

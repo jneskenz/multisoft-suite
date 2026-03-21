@@ -15,12 +15,17 @@ return new class extends Migration
             $table->id();
 
             $table->string('codigo_empleado', 50)->nullable();
-            $table->string('nombre', 150);
+            $table->string('nombres', 100);
+            $table->string('apellidos', 100);
             $table->string('email', 150)->nullable();
             $table->string('documento_tipo', 50)->nullable();
             $table->string('documento_numero', 50)->nullable();
             $table->string('telefono', 50)->nullable();
-            $table->string('cargo', 150)->nullable();
+            $table->string('direccion', 100)->nullable();
+            $table->string('genero', 10)->nullable();
+            $table->string('estado_civil', 10)->nullable();
+            $table->date('fecha_nacimiento')->nullable();
+            // $table->string('cargo', 150)->nullable();
 
             $table->date('fecha_ingreso')->nullable();
             $table->date('fecha_cese')->nullable();

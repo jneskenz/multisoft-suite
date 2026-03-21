@@ -35,7 +35,7 @@ class CargoManager extends Component
 
     public ?int $departamento_id = null;
     public string $codigo = '';
-    public string $name = '';
+    public string $nombre = '';
     public string $descripcion = '';
     public string $nivel = '';
     public int $estado = Cargo::ESTADO_ACTIVO;
@@ -46,7 +46,7 @@ class CargoManager extends Component
 
     protected array $allowedSortFields = [
         'id',
-        'name',
+        'nombre',
         'codigo',
         'nivel',
         'estado',
@@ -57,10 +57,10 @@ class CargoManager extends Component
     public function cargos()
     {
         $query = Cargo::query()
-            ->with('departamento:id,name')
+            ->with('departamento:id,nombre')
             ->when($this->search, function ($q) {
                 $q->where(function ($q) {
-                    $q->where('name', 'like', "%{$this->search}%")
+                    $q->where('nombre', 'like', "%{$this->search}%")
                         ->orWhere('codigo', 'like', "%{$this->search}%")
                         ->orWhere('descripcion', 'like', "%{$this->search}%")
                         ->orWhere('nivel', 'like', "%{$this->search}%");
@@ -89,15 +89,15 @@ class CargoManager extends Component
     public function departamentos()
     {
         return Departamento::query()
-            ->orderBy('name')
-            ->get(['id', 'name']);
+            ->orderBy('nombre')
+            ->get(['id', 'nombre']);
     }
 
     protected function rules(): array
     {
         return [
             'departamento_id' => ['required', 'exists:hr_departamentos,id'],
-            'name' => ['required', 'string', 'max:100'],
+            'nombre' => ['required', 'string', 'max:100'],
             'codigo' => [
                 'nullable',
                 'string',
@@ -117,7 +117,7 @@ class CargoManager extends Component
         return [
             'departamento_id.required' => 'El departamento es obligatorio.',
             'departamento_id.exists' => 'El departamento seleccionado no es valido.',
-            'name.required' => 'El nombre del cargo es obligatorio.',
+            'nombre.required' => 'El nombre del cargo es obligatorio.',
             'codigo.unique' => 'Este codigo ya existe para el departamento seleccionado.',
         ];
     }
@@ -162,7 +162,7 @@ class CargoManager extends Component
         $this->cargoId = $cargo->id;
         $this->departamento_id = $cargo->departamento_id;
         $this->codigo = $cargo->codigo ?? '';
-        $this->name = $cargo->name;
+        $this->nombre = $cargo->nombre;
         $this->descripcion = $cargo->descripcion ?? '';
         $this->nivel = $cargo->nivel ?? '';
         $this->estado = (int) $cargo->estado;
@@ -177,7 +177,7 @@ class CargoManager extends Component
         $data = [
             'departamento_id' => $this->departamento_id,
             'codigo' => $this->codigo ?: null,
-            'name' => $this->name,
+            'nombre' => $this->nombre,
             'descripcion' => $this->descripcion ?: null,
             'nivel' => $this->nivel ?: null,
             'estado' => $this->estado,
@@ -288,7 +288,7 @@ class CargoManager extends Component
             'cargoId',
             'departamento_id',
             'codigo',
-            'name',
+            'nombre',
             'descripcion',
             'nivel',
             'estado',
